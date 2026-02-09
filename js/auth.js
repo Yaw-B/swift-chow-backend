@@ -579,6 +579,37 @@ function initForgotPasswordForm() {
 function initAuth() {
   console.log('Initializing auth system...');
   
+  // CHECK FOR OAUTH CALLBACK with token in URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const tokenFromUrl = urlParams.get('token');
+  const userFromUrl = urlParams.get('user');
+  
+  if (tokenFromUrl) {
+    console.log('Auth: OAuth callback detected, processing token...');
+    try {
+      // Save token and user data
+      localStorage.setItem('authToken', tokenFromUrl);
+      
+      if (userFromUrl) {
+        const userData = JSON.parse(decodeURIComponent(userFromUrl));
+        currentUser = userData;
+        localStorage.setItem('fafoUser', JSON.stringify(userData));
+        console.log('Auth: OAuth user saved:', userData.email);
+      }
+      
+      // Clean up URL to remove token
+      window.history.replaceState({}, document.title, window.location.pathname);
+      
+      // Update UI immediately
+      if (updateAuthUI) updateAuthUI();
+      if (updateFloatingCart) updateFloatingCart();
+      
+      console.log('Auth: OAuth login complete');
+    } catch (e) {
+      console.error('Auth: Error processing OAuth callback:', e);
+    }
+  }
+  
   // CRITICAL: Load user from localStorage on every page
   const savedUser = localStorage.getItem('fafoUser');
   if (savedUser) {
