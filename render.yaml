@@ -2,8 +2,9 @@ services:
   - type: web
     name: swift-chow
     runtime: node
-    buildCommand: npm install
-    startCommand: node server.js
+    runtimeVersion: 18.20.8
+    buildCommand: npm ci --only=production || npm install
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
