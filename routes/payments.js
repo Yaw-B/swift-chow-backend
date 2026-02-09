@@ -1,6 +1,6 @@
-import express from 'express';
-import { requireAuth } from '../middleware/auth.js';
-import PaymentMethod from '../models/PaymentMethod.js';
+const express = require('express');
+const { requireAuth } = require('../middleware/auth');
+const PaymentMethod = require('../models/PaymentMethod');
 
 const router = express.Router();
 
@@ -166,4 +166,4 @@ router.put('/:id/default', requireAuth, async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

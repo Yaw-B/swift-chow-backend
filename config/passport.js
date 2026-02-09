@@ -1,15 +1,16 @@
-import passport from 'passport';
-import LocalStrategy from 'passport-local';
-import GoogleStrategy from 'passport-google-oauth20';
-import FacebookStrategy from 'passport-facebook';
-import JwtStrategy from 'passport-jwt';
-import User from '../models/User.js';
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy;
+const JwtStrategy = require('passport-jwt').Strategy;
+const { ExtractJwt } = require('passport-jwt');
+const User = require('../models/User');
 
 // ============================================
 // LOCAL STRATEGY (Email + Password)
 // ============================================
 
-passport.use('local', new LocalStrategy.Strategy(
+passport.use('local', new LocalStrategy(
   {
     usernameField: 'email',
     passwordField: 'password'
@@ -199,4 +200,4 @@ passport.deserializeUser(async (userId, done) => {
   }
 });
 
-export default passport;
+module.exports = passport;

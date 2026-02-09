@@ -1,10 +1,10 @@
-import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
 /**
  * Middleware to require authentication
  */
-export const requireAuth = async (req, res, next) => {
+const requireAuth = async (req, res, next) => {
   try {
     // Get token from cookie or header
     let token = req.cookies?.token;
@@ -91,3 +91,5 @@ export const errorHandler = (err, req, res, next) => {
     error: err.message || 'Internal server error'
   });
 };
+
+module.exports = { requireAuth, optionalAuth, errorHandler };

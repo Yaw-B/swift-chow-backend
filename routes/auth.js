@@ -1,8 +1,8 @@
-import express from 'express';
-import jwt from 'jsonwebtoken';
-import passport from 'passport';
-import User from '../models/User.js';
-import { requireAuth } from '../middleware/auth.js';
+const express = require('express');
+const jwt = require('jsonwebtoken');
+const passport = require('passport');
+const User = require('../models/User');
+const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -244,4 +244,4 @@ router.post('/change-password', requireAuth, async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

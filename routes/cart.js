@@ -1,5 +1,5 @@
-import express from 'express';
-import { requireAuth } from '../middleware/auth.js';
+const express = require('express');
+const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -150,4 +150,4 @@ router.delete('/clear', requireAuth, (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

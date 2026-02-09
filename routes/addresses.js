@@ -1,6 +1,6 @@
-import express from 'express';
-import { requireAuth } from '../middleware/auth.js';
-import Address from '../models/Address.js';
+const express = require('express');
+const { requireAuth } = require('../middleware/auth');
+const Address = require('../models/Address');
 
 const router = express.Router();
 
@@ -173,4 +173,4 @@ router.put('/:id/default', requireAuth, async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

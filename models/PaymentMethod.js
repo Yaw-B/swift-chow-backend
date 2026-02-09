@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const paymentMethodSchema = new mongoose.Schema({
   userId: {

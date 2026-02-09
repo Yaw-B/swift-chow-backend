@@ -1,7 +1,7 @@
-import express from 'express';
-import { requireAuth } from '../middleware/auth.js';
-import Order from '../models/Order.js';
-import User from '../models/User.js';
+const express = require('express');
+const { requireAuth } = require('../middleware/auth');
+const Order = require('../models/Order');
+const User = require('../models/User');
 
 const router = express.Router();
 
@@ -244,4 +244,4 @@ router.post('/:orderId/cancel', requireAuth, async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;
