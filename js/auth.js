@@ -118,14 +118,23 @@ function saveCurrentPageForRedirect() {
 
 // Logout
 async function logout() {
+  console.log('Logout: Starting logout process...');
+  
   try {
     await apiLogout();
   } catch (error) {
     console.error('Logout error:', error);
   }
   
+  // CRITICAL: Manually clear all auth data from localStorage
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('fafoUser');
+  localStorage.removeItem('currentUser');
+  console.log('Logout: Cleared all localStorage auth data');
+  
   // Clear local auth state
   currentUser = null;
+  console.log('Logout: Cleared currentUser variable');
   
   // Call updateAuthUI immediately if available
   if (typeof updateAuthUI === 'function') {
@@ -143,6 +152,8 @@ async function logout() {
   if (loginBtn) {
     loginBtn.style.display = 'block';
   }
+  
+  console.log('Logout: UI updated, redirecting to index.html...');
   
   // Redirect after UI update
   setTimeout(() => {

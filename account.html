@@ -545,7 +545,6 @@
                         <li><a href="terms.html">Terms & Conditions</a></li>
                         <li><a href="terms.html#privacy">Privacy Policy</a></li>
                         <li><a href="contact.html#faq">FAQ</a></li>
-                        <li><a href="account.html">My Account</a></li>
                     </ul>
                 </div>
                 
@@ -1131,5 +1130,89 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Load user profile data on page load
+        function loadProfileData() {
+            const user = getCurrentUser();
+            if (!user) {
+                console.log('Profile: No user data found');
+                return;
+            }
+            
+            console.log('Profile: Loading user data:', user.email);
+            
+            // Get form inputs
+            const firstNameInput = document.querySelector('input[placeholder="John"]');
+            const lastNameInput = document.querySelector('input[placeholder="Doe"]');
+            const emailInput = document.querySelector('input[type="email"]');
+            const phoneInput = document.querySelector('input[type="tel"]');
+            
+            if (firstNameInput) {
+                firstNameInput.value = user.firstName || '';
+            }
+            if (lastNameInput) {
+                lastNameInput.value = user.lastName || '';
+            }
+            if (emailInput) {
+                emailInput.value = user.email || '';
+            }
+            if (phoneInput) {
+                phoneInput.value = user.phone || '';
+            }
+            
+            console.log('Profile: User data loaded into form');
+        }
+        
+        // Save profile changes
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load profile data after a short delay to ensure scripts are loaded
+            setTimeout(loadProfileData, 100);
+            
+            // Handle profile form submission
+            const profileForm = document.querySelector('.profile-form');
+            if (profileForm) {
+                profileForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const firstName = document.querySelector('input[placeholder="John"]').value;
+                    const lastName = document.querySelector('input[placeholder="Doe"]').value;
+                    const phone = document.querySelector('input[type="tel"]').value;
+                    
+                    console.log('Profile: Saving changes...', { firstName, lastName, phone });
+                    
+                    try {
+                        const response = await apiCall('/users/profile', {
+                            method: 'PUT',
+                            body: JSON.stringify({
+                                firstName,
+                                lastName,
+                                phone
+                            })
+                        });
+                        
+                        if (response.success) {
+                            // Update currentUser
+                            currentUser = {
+                                ...currentUser,
+                                firstName,
+                                lastName,
+                                phone
+                            };
+                            localStorage.setItem('fafoUser', JSON.stringify(currentUser));
+                            
+                            alert('Profile updated successfully!');
+                            console.log('Profile: Saved successfully');
+                        } else {
+                            alert('Error saving profile: ' + (response.message || 'Unknown error'));
+                        }
+                    } catch (error) {
+                        console.error('Profile: Save error:', error);
+                        alert('Error saving profile. Please try again.');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
