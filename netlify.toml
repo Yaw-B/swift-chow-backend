@@ -1,0 +1,21 @@
+# Netlify configuration for SWIFT CHOW frontend
+
+[build]
+publish = "."
+command = "echo 'No build required for static site'"
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+
+[dev]
+command = "python -m http.server 8000"
+port = 8000
+
+[[headers]]
+for = "/*"
+[headers.values]
+Access-Control-Allow-Origin = "https://swift-chow-backend.onrender.com"
+Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+Access-Control-Allow-Headers = "Content-Type, Authorization"
