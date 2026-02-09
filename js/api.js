@@ -4,7 +4,7 @@
    ============================================ */
 
 // API Base URL - Update this when you deploy to Render
-const API_BASE_URL = localStorage.getItem('apiUrl') || 'http://localhost:5000/api';
+const API_BASE_URL = localStorage.getItem('apiUrl') || 'https://swift-chow-backend.onrender.com/api';
 
 // Set API URL dynamically (useful for development vs production)
 function setApiUrl(url) {
