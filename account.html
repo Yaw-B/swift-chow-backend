@@ -11,12 +11,15 @@
 </head>
 <body data-page="account">
     <script>
-        // Protect this page - require authentication
-        if (typeof isAuthenticated === 'function') {
-            if (!isAuthenticated()) {
-                window.location.href = 'login.html?return=' + encodeURIComponent(window.location.pathname);
+        // Protect this page - check after a delay to ensure api.js is loaded
+        setTimeout(() => {
+            if (typeof isAuthenticated === 'function') {
+                if (!isAuthenticated()) {
+                    console.log('Not authenticated, redirecting to login');
+                    window.location.href = 'login.html?return=' + encodeURIComponent(window.location.pathname);
+                }
             }
-        }
+        }, 500);
     </script>
     <!-- Header -->
     <header class="header">

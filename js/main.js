@@ -2520,7 +2520,7 @@ function createFloatingCart() {
 
 // Update Floating Cart Count
 function updateFloatingCartCount() {
-  const cart = JSON.parse(localStorage.getItem('fafoCart') || '[]');
+  // Use the global cart variable from cart.js, not localStorage
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const floatingCount = document.querySelector('.floating-cart-count');
   
