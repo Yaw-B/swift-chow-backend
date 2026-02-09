@@ -1392,9 +1392,20 @@ function init() {
     initScrollEffects();
     initNewsletterForm();
     
+    // Load cart from API or localStorage
+    if (typeof loadCart === 'function') {
+      loadCart().catch(err => {
+        console.error('Error loading cart:', err);
+        // Fall back to localStorage
+        cart = JSON.parse(localStorage.getItem('swiftChowCart')) || [];
+        updateCartCount();
+      });
+    }
+    
     // Update navigation based on auth state
     updateNavAuthUI();
     updateAuthUI();
+    updateCartCount();
     
     // Get current page
     const page = document.body.dataset.page;
@@ -2143,7 +2154,8 @@ function updateCartModal() {
   const cartModal = document.getElementById('cartModal');
   if (!cartModal) return;
   
-  const cartItems = JSON.parse(localStorage.getItem('fafoCart') || '[]');
+  // Use the global cart variable from cart.js, NOT localStorage
+  const cartItems = cart || [];
   const cartList = cartModal.querySelector('.cart-items-modal-list');
   
   if (cartItems.length === 0) {
@@ -2158,7 +2170,7 @@ function updateCartModal() {
     let html = '<div style="padding: 0;">';
     let subtotal = 0;
     
-    cartItems.forEach((item, index) => {
+    cartItems.forEach((item) => {
       const itemTotal = item.price * item.quantity;
       subtotal += itemTotal;
       
@@ -2169,10 +2181,10 @@ function updateCartModal() {
             <h4 style="margin: 0 0 0.25rem 0; font-size: 0.95rem;">${item.name}</h4>
             <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">GHS ${item.price.toFixed(2)}</p>
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
-              <button class="btn btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="updateCartItemQty(${index}, -1)">−</button>
+              <button class="btn btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="decrementQuantity(${item.id})">−</button>
               <span style="width: 30px; text-align: center;">${item.quantity}</span>
-              <button class="btn btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="updateCartItemQty(${index}, 1)">+</button>
-              <button class="btn btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; margin-left: auto; color: #dc2626;" onclick="removeCartItem(${index})"><i class="fas fa-trash"></i></button>
+              <button class="btn btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="incrementQuantity(${item.id})">+</button>
+              <button class="btn btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; margin-left: auto; color: #dc2626;" onclick="removeFromCart(${item.id})"><i class="fas fa-trash"></i></button>
             </div>
           </div>
           <div style="text-align: right; font-weight: 600;">GHS ${itemTotal.toFixed(2)}</div>
@@ -2198,28 +2210,6 @@ function updateCartModal() {
   if (totalEl) totalEl.textContent = `GHS ${total.toFixed(2)}`;
 }
 
-function updateCartItemQty(index, change) {
-  const cartItems = JSON.parse(localStorage.getItem('fafoCart') || '[]');
-  if (cartItems[index]) {
-    cartItems[index].quantity += change;
-    if (cartItems[index].quantity <= 0) {
-      cartItems.splice(index, 1);
-    }
-    localStorage.setItem('fafoCart', JSON.stringify(cartItems));
-    updateCartModal();
-  }
-}
-
-function removeCartItem(index) {
-  const cartItems = JSON.parse(localStorage.getItem('fafoCart') || '[]');
-  if (cartItems[index]) {
-    const itemName = cartItems[index].name;
-    cartItems.splice(index, 1);
-    localStorage.setItem('fafoCart', JSON.stringify(cartItems));
-    showAdvancedToast(`${itemName} removed from cart`, 'info');
-    updateCartModal();
-  }
-}
 
 function proceedToCheckout() {
   location.href = 'checkout.html';

@@ -11,11 +11,15 @@ let cartLoaded = false;
 
 // Load cart from API on page load
 async function loadCart() {
+  console.log('loadCart() called - isAuthenticated:', isAuthenticated());
+  
   if (!isAuthenticated()) {
     // If not logged in, use localStorage
     cart = JSON.parse(localStorage.getItem('swiftChowCart')) || [];
     cartLoaded = true;
+    console.log('Cart loaded from localStorage:', cart.length, 'items');
     updateCartDisplay();
+    updateCartCount();
     return;
   }
   
@@ -23,13 +27,17 @@ async function loadCart() {
     const response = await apiGetCart();
     cart = response.items || [];
     cartLoaded = true;
+    console.log('Cart loaded from API:', cart.length, 'items');
     updateCartDisplay();
+    updateCartCount();
   } catch (error) {
-    console.error('Error loading cart:', error);
+    console.error('Error loading cart from API:', error);
     // Fallback to localStorage
     cart = JSON.parse(localStorage.getItem('swiftChowCart')) || [];
     cartLoaded = true;
+    console.log('Cart loaded from localStorage (fallback):', cart.length, 'items');
     updateCartDisplay();
+    updateCartCount();
   }
 }
 
@@ -85,43 +93,62 @@ function updateCartCount() {
 
 // Add item to cart
 async function addToCart(productId, quantity = 1) {
+  console.log('addToCart called - productId:', productId, 'quantity:', quantity);
+  console.log('foodItems type:', typeof foodItems, 'length:', foodItems ? foodItems.length : 'undefined');
+  console.log('cart state:', cart.length, 'items, cartLoaded:', cartLoaded);
+  
+  if (!cartLoaded) {
+    console.warn('Cart not loaded yet, attempting to load...');
+    await loadCart();
+  }
+  
   const product = foodItems.find(item => item.id === productId);
   if (!product) {
-    console.error('Product not found:', productId);
+    console.error('Product not found - productId:', productId);
+    showToast('Product not found', 'error');
     return false;
   }
   
+  console.log('Product found:', product.name);
+  
   if (isAuthenticated()) {
+    console.log('Adding to cart via API...');
     try {
       const response = await apiAddToCart(productId, quantity);
       cart = response.items || cart;
+      console.log('Cart updated via API:', cart.length, 'items');
       saveCart();
+      showToast(`${product.name} added to cart!`, 'success');
       return true;
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      console.error('Error adding to cart via API:', error);
+      showToast('Error adding to cart', 'error');
       return false;
     }
   } else {
+    console.log('Adding to cart via localStorage...');
     const existingItem = cart.find(item => item.id === productId);
   
-  if (existingItem) {
-    existingItem.quantity += quantity;
-  } else {
-    cart.push({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      category: product.category,
-      quantity: quantity
-    });
+    if (existingItem) {
+      existingItem.quantity += quantity;
+      console.log('Updated existing item quantity:', existingItem.quantity);
+    } else {
+      cart.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        category: product.category,
+        quantity: quantity
+      });
+      console.log('Added new item to cart');
+    }
+  
+    saveCart();
+    showToast(`${product.name} added to cart!`, 'success');
+    animateCartIcon();
+    return true;
   }
-  
-  saveCart();
-  showToast(`${product.name} added to cart!`, 'success');
-  animateCartIcon();
-  
-  return true;
 }
 
 // Remove item from cart

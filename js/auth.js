@@ -36,6 +36,16 @@ function getCurrentUser() {
   return currentUser;
 }
 
+// Protect page - redirect to login if not authenticated
+function protectPage() {
+  if (!isAuthenticated()) {
+    console.warn('User not authenticated. Redirecting to login...');
+    // Redirect to login with return URL
+    const returnUrl = encodeURIComponent(window.location.pathname);
+    window.location.href = `login.html?return=${returnUrl}`;
+  }
+}
+
 // Login with email and password
 async function login(email, password, remember = false) {
   if (!email || !validateEmail(email)) {
@@ -122,7 +132,9 @@ async function logout() {
 // Google Sign In
 function googleSignIn() {
   // Redirect to Google OAuth endpoint
-  window.location.href = `${API_BASE_URL}/auth/google`;
+  const redirectUrl = `${API_BASE_URL}/auth/google`;
+  console.log('Redirecting to Google OAuth:', redirectUrl);
+  window.location.href = redirectUrl;
 }
 
 // Facebook Sign In

@@ -37,6 +37,8 @@ async function apiCall(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
   const token = getAuthToken();
   
+  console.log('API Call:', endpoint, 'URL:', url, 'Authenticated:', !!token);
+  
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
@@ -54,6 +56,8 @@ async function apiCall(endpoint, options = {}) {
     });
     
     const data = await response.json();
+    
+    console.log('API Response:', endpoint, 'Status:', response.status, 'Data:', data);
     
     if (!response.ok) {
       // Handle 401 - token expired or invalid
