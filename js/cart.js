@@ -62,6 +62,9 @@ async function saveCart() {
   if (typeof updateCartModal === 'function') {
     updateCartModal();
   }
+  if (typeof updateFloatingCart === 'function') {
+    updateFloatingCart();
+  }
 }
 
 // Get cart

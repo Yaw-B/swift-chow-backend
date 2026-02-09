@@ -2490,15 +2490,34 @@ function initEnhancements() {
 function createFloatingCart() {
   // Check if floating cart already exists
   if (document.querySelector('.floating-cart-btn')) {
-    updateFloatingCartCount();
+    updateFloatingCart();
     return;
   }
 
   const floatingCartHTML = `
     <button class="floating-cart-btn" title="Open Cart" id="floatingCartBtn">
       <i class="fas fa-shopping-bag"></i>
-      <span class="floating-cart-count" style="display: none;">0</span>
+      <span class="floating-cart-count" style="display: none; position: absolute; top: -5px; right: -5px; background: var(--primary); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">0</span>
     </button>
+    <div class="floating-cart-tooltip" style="display: none; position: fixed; bottom: 80px; right: 20px; background: white; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 9998; min-width: 300px; max-width: 350px;">
+      <div style="padding: 12px; border-bottom: 1px solid var(--border-color);">
+        <h4 style="margin: 0; font-size: 0.9rem; font-weight: 600;">Cart Preview</h4>
+      </div>
+      <div class="floating-cart-items" style="max-height: 200px; overflow-y: auto; padding: 8px 0;">
+        <!-- Items will be rendered here -->
+      </div>
+      <div style="padding: 12px; border-top: 1px solid var(--border-color); background: var(--bg-secondary);">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 500;">
+          <span>Total:</span>
+          <span class="floating-cart-total">GHS 0.00</span>
+        </div>
+        <button class="btn btn-primary btn-sm" style="width: 100%; font-size: 0.85rem;" onclick="
+          const cartModal = document.getElementById('cartModal');
+          if (cartModal) openModal(cartModal);
+          document.querySelector('.floating-cart-tooltip').style.display = 'none';
+        ">View Full Cart</button>
+      </div>
+    </div>
   `;
   
   document.body.insertAdjacentHTML('beforeend', floatingCartHTML);
@@ -2511,27 +2530,66 @@ function createFloatingCart() {
       const cartModal = document.getElementById('cartModal');
       if (cartModal) {
         openModal(cartModal);
+        document.querySelector('.floating-cart-tooltip').style.display = 'none';
       }
+    });
+    
+    // Show tooltip on hover
+    btn.addEventListener('mouseenter', () => {
+      if (cart && cart.length > 0) {
+        document.querySelector('.floating-cart-tooltip').style.display = 'block';
+      }
+    });
+    btn.addEventListener('mouseleave', () => {
+      document.querySelector('.floating-cart-tooltip').style.display = 'none';
     });
   }
   
-  updateFloatingCartCount();
+  updateFloatingCart();
 }
 
-// Update Floating Cart Count
-function updateFloatingCartCount() {
-  // Use the global cart variable from cart.js, not localStorage
+// Update Floating Cart with items and total
+function updateFloatingCart() {
+  // Update count
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const floatingCount = document.querySelector('.floating-cart-count');
   
   if (floatingCount) {
     floatingCount.textContent = totalItems;
-    if (totalItems > 0) {
-      floatingCount.style.display = 'flex';
-    } else {
-      floatingCount.style.display = 'none';
-    }
+    floatingCount.style.display = totalItems > 0 ? 'flex' : 'none';
   }
+  
+  // Update items preview
+  const itemsContainer = document.querySelector('.floating-cart-items');
+  if (itemsContainer && cart && cart.length > 0) {
+    itemsContainer.innerHTML = cart.map(item => `
+      <div style="padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; gap: 8px; align-items: center;">
+        <img src="${item.image}" alt="${item.name}" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;">
+        <div style="flex: 1; font-size: 0.85rem;">
+          <div style="font-weight: 500;">${item.name}</div>
+          <div style="color: var(--text-secondary);">x${item.quantity}</div>
+        </div>
+        <div style="font-weight: 600; white-space: nowrap;">GHS ${(item.price * item.quantity).toFixed(2)}</div>
+      </div>
+    `).join('');
+  } else if (itemsContainer) {
+    itemsContainer.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">Cart is empty</div>';
+  }
+  
+  // Update total
+  const subtotal = getCartSubtotal ? getCartSubtotal() : cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const delivery = subtotal > 100 ? 0 : 15;
+  const total = subtotal + delivery;
+  
+  const totalEl = document.querySelector('.floating-cart-total');
+  if (totalEl) {
+    totalEl.textContent = `GHS ${total.toFixed(2)}`;
+  }
+}
+
+// Update Floating Cart Count
+function updateFloatingCartCount() {
+  updateFloatingCart();
 }
 
 // Initialize Motorcycle Animation on Tracking Page
