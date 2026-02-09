@@ -2261,8 +2261,22 @@ function updateAuthUI() {
       console.log('updateAuthUI: Login button hidden');
     }
     
+    // Get user name from various possible properties (OAuth vs regular signup)
+    let userName = '';
+    if (user.fullName) {
+      userName = user.fullName;
+    } else if (user.name) {
+      userName = user.name;
+    } else if (user.firstName && user.lastName) {
+      userName = `${user.firstName} ${user.lastName}`;
+    } else if (user.firstName) {
+      userName = user.firstName;
+    } else {
+      userName = user.email.split('@')[0]; // fallback to email username
+    }
+    
     // Show user badge in nav-actions (same level as header)
-    const userInitial = (user.fullName || user.name).charAt(0).toUpperCase();
+    const userInitial = userName.charAt(0).toUpperCase();
     const userColor = generateUserColor(user.email);
     
     const profileHTML = `
@@ -2291,7 +2305,7 @@ function updateAuthUI() {
           overflow: hidden;
         ">
           <div style="padding: 1rem; border-bottom: 1px solid var(--border-color);">
-            <p style="margin: 0; font-weight: 600; color: var(--text-primary);">${user.fullName || user.name}</p>
+            <p style="margin: 0; font-weight: 600; color: var(--text-primary);">${userName}</p>
             <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">${user.email}</p>
           </div>
           <a href="account.html" style="display: block; padding: 0.75rem 1rem; color: var(--text-primary); text-decoration: none; border-bottom: 1px solid var(--border-color); transition: all 0.2s;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
