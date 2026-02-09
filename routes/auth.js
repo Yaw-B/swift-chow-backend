@@ -1,247 +1,193 @@
 const express = require('express');
-const jwt = require('jsonwebtoken');
-const passport = require('passport');
-const User = require('../models/User');
-const { requireAuth } = require('../middleware/auth');
-
 const router = express.Router();
+const passport = require('passport');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
 // ============================================
-// JWT TOKEN GENERATION
+// REGISTER ENDPOINT
 // ============================================
 
-const generateToken = (userId) => {
-  return jwt.sign(
-    { userId },
-    process.env.JWT_SECRET || 'your-jwt-secret-change-in-production',
-    { expiresIn: '7d' }
-  );
-};
-
-const setAuthCookie = (res, token) => {
-  res.cookie('token', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-  });
-};
-
-// ============================================
-// LOCAL AUTHENTICATION (Email + Password)
-// ============================================
-
-// Register
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, firstName, lastName, phone } = req.body;
-    
+    const { firstName, lastName, email, phone, password } = req.body;
+
     // Validate input
-    if (!email || !password || !firstName) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (!firstName || !lastName || !email || !password) {
+      return res.status(400).json({ error: { message: 'Missing required fields', status: 400 } });
     }
-    
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ error: { message: 'Email already registered', status: 409 } });
     }
-    
-    // Check if user exists
-    let user = await User.findOne({ email });
-    if (user) {
-      return res.status(409).json({ error: 'User already exists' });
-    }
-    
+
     // Create new user
-    user = new User({
-      email,
-      password,
+    const newUser = new User({
       firstName,
       lastName,
+      email,
       phone,
-      isEmailVerified: false
+      password
     });
-    
-    await user.save();
-    
-    // Generate token
-    const token = generateToken(user._id);
-    setAuthCookie(res, token);
-    
-    res.status(201).json({
+
+    await newUser.save();
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        userId: newUser._id,
+        email: newUser.email 
+      },
+      process.env.JWT_SECRET || 'your-jwt-secret-change-in-production',
+      { expiresIn: '7d' }
+    );
+
+    return res.status(201).json({
       success: true,
-      user: user.getPublicProfile(),
-      token
+      message: 'User registered successfully',
+      user: {
+        id: newUser._id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        phone: newUser.phone
+      },
+      token: token
     });
   } catch (error) {
     console.error('Register error:', error);
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: { message: 'Registration failed', status: 500 } });
   }
 });
 
-// Login
+// ============================================
+// LOGIN ENDPOINT (FIXED)
+// ============================================
+
 router.post('/login', (req, res, next) => {
-  passport.authenticate('local', async (err, user, info) => {
-    try {
-      if (err) {
-        return res.status(500).json({ error: 'Authentication error' });
-      }
-      
-      if (!user) {
-        return res.status(401).json({ error: info.message });
-      }
-      
-      // Generate token
-      const token = generateToken(user._id);
-      setAuthCookie(res, token);
-      
-      res.json({
-        success: true,
-        user: user.getPublicProfile(),
-        token
-      });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+  passport.authenticate('local', (err, user, info) => {
+    if (err) {
+      console.error('Auth error:', err);
+      return res.status(500).json({ error: { message: 'Authentication error', status: 500 } });
     }
+    
+    if (!user) {
+      console.log('No user found:', info);
+      return res.status(401).json({ error: { message: info?.message || 'Invalid credentials', status: 401 } });
+    }
+    
+    // Log the user in via passport session
+    req.login(user, (err) => {
+      if (err) {
+        console.error('Login error:', err);
+        return res.status(500).json({ error: { message: 'Login failed', status: 500 } });
+      }
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { 
+          userId: user._id,
+          email: user.email 
+        },
+        process.env.JWT_SECRET || 'your-jwt-secret-change-in-production',
+        { expiresIn: '7d' }
+      );
+      
+      console.log('Login successful for:', user.email, 'Token:', token.substring(0, 20) + '...');
+      
+      // Return user data and token
+      return res.status(200).json({
+        success: true,
+        message: 'Login successful',
+        user: {
+          id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phone: user.phone,
+          profileImage: user.profileImage
+        },
+        token: token
+      });
+    });
   })(req, res, next);
 });
 
 // ============================================
-// GOOGLE OAUTH
+// GOOGLE OAUTH CALLBACK
 // ============================================
 
-router.get('/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
-
-router.get('/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
-  (req, res) => {
-    // Generate token
-    const token = generateToken(req.user._id);
-    setAuthCookie(res, token);
-    
-    // Redirect to frontend with token
-    res.redirect(`/index.html?auth=success&token=${token}`);
-  }
-);
+router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/login?error=google_auth_failed' }), (req, res) => {
+  const token = jwt.sign(
+    { userId: req.user._id, email: req.user.email },
+    process.env.JWT_SECRET || 'your-jwt-secret-change-in-production',
+    { expiresIn: '7d' }
+  );
+  
+  res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/menu.html?token=${token}&user=${encodeURIComponent(JSON.stringify(req.user))}`);
+});
 
 // ============================================
-// FACEBOOK OAUTH
+// FACEBOOK OAUTH CALLBACK
 // ============================================
 
-router.get('/facebook',
-  passport.authenticate('facebook', { scope: ['email', 'public_profile'] })
-);
+router.get('/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/login?error=facebook_auth_failed' }), (req, res) => {
+  const token = jwt.sign(
+    { userId: req.user._id, email: req.user.email },
+    process.env.JWT_SECRET || 'your-jwt-secret-change-in-production',
+    { expiresIn: '7d' }
+  );
+  
+  res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/menu.html?token=${token}&user=${encodeURIComponent(JSON.stringify(req.user))}`);
+});
 
-router.get('/facebook/callback',
-  passport.authenticate('facebook', { failureRedirect: '/login' }),
-  (req, res) => {
-    // Generate token
-    const token = generateToken(req.user._id);
-    setAuthCookie(res, token);
-    
-    // Redirect to frontend with token
-    res.redirect(`/index.html?auth=success&token=${token}`);
-  }
-);
+// ============================================
+// GOOGLE OAUTH ROUTE
+// ============================================
+
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+// ============================================
+// FACEBOOK OAUTH ROUTE
+// ============================================
+
+router.get('/facebook', passport.authenticate('facebook', { scope: ['public_profile', 'email'] }));
 
 // ============================================
 // LOGOUT
 // ============================================
 
 router.post('/logout', (req, res) => {
-  res.clearCookie('token');
   req.logout((err) => {
     if (err) {
-      return res.status(500).json({ error: 'Logout failed' });
+      return res.status(500).json({ error: { message: 'Logout failed', status: 500 } });
     }
     res.json({ success: true, message: 'Logged out successfully' });
   });
 });
 
 // ============================================
-// GET CURRENT USER
+// CHECK AUTH STATUS
 // ============================================
 
-router.get('/me', requireAuth, (req, res) => {
-  res.json({
-    success: true,
-    user: req.user.getPublicProfile()
-  });
-});
-
-// ============================================
-// REFRESH TOKEN
-// ============================================
-
-router.post('/refresh', requireAuth, (req, res) => {
-  const token = generateToken(req.user._id);
-  setAuthCookie(res, token);
+router.get('/me', (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ error: { message: 'Not authenticated', status: 401 } });
+  }
   
   res.json({
     success: true,
-    token
+    user: {
+      id: req.user._id,
+      firstName: req.user.firstName,
+      lastName: req.user.lastName,
+      email: req.user.email,
+      phone: req.user.phone,
+      profileImage: req.user.profileImage
+    }
   });
-});
-
-// ============================================
-// UPDATE PROFILE
-// ============================================
-
-router.put('/profile', requireAuth, async (req, res) => {
-  try {
-    const { firstName, lastName, phone, profileImage } = req.body;
-    
-    const user = await User.findById(req.user._id);
-    
-    if (firstName) user.firstName = firstName;
-    if (lastName) user.lastName = lastName;
-    if (phone) user.phone = phone;
-    if (profileImage) user.profileImage = profileImage;
-    
-    user.updatedAt = new Date();
-    await user.save();
-    
-    res.json({
-      success: true,
-      user: user.getPublicProfile()
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// ============================================
-// CHANGE PASSWORD
-// ============================================
-
-router.post('/change-password', requireAuth, async (req, res) => {
-  try {
-    const { currentPassword, newPassword } = req.body;
-    
-    if (!currentPassword || !newPassword) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-    
-    const user = await User.findById(req.user._id).select('+password');
-    
-    // Verify current password
-    const isValid = await user.comparePassword(currentPassword);
-    if (!isValid) {
-      return res.status(401).json({ error: 'Current password is incorrect' });
-    }
-    
-    // Update password
-    user.password = newPassword;
-    await user.save();
-    
-    res.json({
-      success: true,
-      message: 'Password changed successfully'
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
 module.exports = router;
