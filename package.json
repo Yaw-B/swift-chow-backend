@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "SWIFT CHOW - Food delivery application with OAuth authentication and MongoDB",
   "main": "server.js",
-  "type": "module",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
