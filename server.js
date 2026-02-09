@@ -49,6 +49,9 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Load Passport strategies
+require('./config/passport');
+
 // Static files (serve frontend)
 app.use(express.static(path.join(__dirname), {
   setHeaders: (res, filePath) => {
@@ -173,3 +176,4 @@ process.on('unhandledRejection', (err) => {
 });
 
 module.exports = app;
+
