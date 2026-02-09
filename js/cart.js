@@ -1,20 +1,54 @@
 /* ============================================
-   FAFO FOOD - Cart System
-   Complete shopping cart functionality
+   SWIFT CHOW - Cart System
+   Shopping cart with backend API integration
    ============================================ */
 
 // ============================================
 // CART STATE
 // ============================================
-let cart = JSON.parse(localStorage.getItem('fafoCart')) || [];
+let cart = [];
+let cartLoaded = false;
+
+// Load cart from API on page load
+async function loadCart() {
+  if (!isAuthenticated()) {
+    // If not logged in, use localStorage
+    cart = JSON.parse(localStorage.getItem('swiftChowCart')) || [];
+    cartLoaded = true;
+    updateCartDisplay();
+    return;
+  }
+  
+  try {
+    const response = await apiGetCart();
+    cart = response.items || [];
+    cartLoaded = true;
+    updateCartDisplay();
+  } catch (error) {
+    console.error('Error loading cart:', error);
+    // Fallback to localStorage
+    cart = JSON.parse(localStorage.getItem('swiftChowCart')) || [];
+    cartLoaded = true;
+    updateCartDisplay();
+  }
+}
 
 // ============================================
 // CART FUNCTIONS
 // ============================================
 
-// Save cart to localStorage
-function saveCart() {
-  localStorage.setItem('fafoCart', JSON.stringify(cart));
+// Save cart (to localStorage if not logged in)
+async function saveCart() {
+  if (isAuthenticated()) {
+    try {
+      await apiGetCart(); // Sync with server
+    } catch (error) {
+      console.error('Error syncing cart:', error);
+    }
+  } else {
+    localStorage.setItem('swiftChowCart', JSON.stringify(cart));
+  }
+  
   updateCartCount();
   updateCartDisplay();
   if (typeof updateCartModal === 'function') {
@@ -22,9 +56,9 @@ function saveCart() {
   }
 }
 
-// Get cart from localStorage
+// Get cart
 function getCart() {
-  return JSON.parse(localStorage.getItem('fafoCart')) || [];
+  return cart;
 }
 
 // Update cart count in header
@@ -50,14 +84,25 @@ function updateCartCount() {
 }
 
 // Add item to cart
-function addToCart(productId, quantity = 1) {
+async function addToCart(productId, quantity = 1) {
   const product = foodItems.find(item => item.id === productId);
   if (!product) {
     console.error('Product not found:', productId);
     return false;
   }
   
-  const existingItem = cart.find(item => item.id === productId);
+  if (isAuthenticated()) {
+    try {
+      const response = await apiAddToCart(productId, quantity);
+      cart = response.items || cart;
+      saveCart();
+      return true;
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      return false;
+    }
+  } else {
+    const existingItem = cart.find(item => item.id === productId);
   
   if (existingItem) {
     existingItem.quantity += quantity;

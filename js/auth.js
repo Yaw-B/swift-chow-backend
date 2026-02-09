@@ -1,23 +1,23 @@
 /* ============================================
-   FAFO FOOD - Authentication System
-   Simulated authentication for demo purposes
+   SWIFT CHOW - Authentication System
+   Real authentication with backend API
    ============================================ */
 
 // ============================================
-// USER STATE - Always check localStorage first (persists across tabs/pages)
+// USER STATE
 // ============================================
 let currentUser = null;
 
-// Initialize user from storage immediately
+// Initialize user from storage on page load
 (function initUserState() {
-  const storedUser = localStorage.getItem('fafoUser');
+  const storedUser = localStorage.getItem('currentUser');
   if (storedUser) {
     try {
       currentUser = JSON.parse(storedUser);
       console.log('User loaded from storage:', currentUser.email);
     } catch (e) {
       console.error('Error parsing stored user:', e);
-      localStorage.removeItem('fafoUser');
+      localStorage.removeItem('currentUser');
     }
   }
 })();
@@ -28,7 +28,7 @@ let currentUser = null;
 
 // Check if user is logged in
 function isLoggedIn() {
-  return currentUser !== null;
+  return isAuthenticated();
 }
 
 // Get current user
@@ -36,11 +36,8 @@ function getCurrentUser() {
   return currentUser;
 }
 
-// Simulate login
-function login(email, password, remember = false) {
-  // In a real app, this would make an API call
-  // For demo, we accept any valid email format with password length >= 6
-  
+// Login with email and password
+async function login(email, password, remember = false) {
   if (!email || !validateEmail(email)) {
     return { success: false, message: 'Please enter a valid email address' };
   }
@@ -49,45 +46,47 @@ function login(email, password, remember = false) {
     return { success: false, message: 'Password must be at least 6 characters' };
   }
   
-  // Check if user exists in localStorage (simulated database)
-  const users = JSON.parse(localStorage.getItem('fafoUsers')) || [];
-  const user = users.find(u => u.email === email);
-  
-  if (user && user.password === password) {
-    // User found, log them in
-    currentUser = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      createdAt: user.createdAt
-    };
-  } else if (!user) {
-    // For demo purposes, create account if doesn't exist
-    currentUser = {
-      id: generateUserId(),
-      name: email.split('@')[0],
-      email: email,
-      phone: '',
-      createdAt: new Date().toISOString()
-    };
+  try {
+    const response = await apiLogin(email, password);
     
-    // Also save to users database
-    users.push({
-      ...currentUser,
-      password: password
-    });
-    localStorage.setItem('fafoUsers', JSON.stringify(users));
-  } else {
-    return { success: false, message: 'Invalid email or password' };
+    if (response && response.user) {
+      currentUser = response.user;
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      console.log('User logged in:', currentUser.email);
+      return { success: true, message: 'Login successful!', user: currentUser };
+    }
+    
+    return { success: false, message: 'Login failed' };
+  } catch (error) {
+    return { success: false, message: error.message || 'Login failed' };
+  }
+}
+
+// Register new user
+async function register(email, password, firstName = '', lastName = '') {
+  if (!email || !validateEmail(email)) {
+    return { success: false, message: 'Please enter a valid email address' };
   }
   
-  // Save to localStorage - this persists across browser sessions and page navigations
-  localStorage.setItem('fafoUser', JSON.stringify(currentUser));
+  if (!password || password.length < 6) {
+    return { success: false, message: 'Password must be at least 6 characters' };
+  }
   
-  console.log('User logged in and saved:', currentUser.email);
-  
-  return { success: true, message: 'Login successful!', user: currentUser };
+  try {
+    const response = await apiRegister(email, password, firstName, lastName);
+    
+    if (response && response.user) {
+      currentUser = response.user;
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      setAuthToken(response.token);
+      console.log('User registered:', currentUser.email);
+      return { success: true, message: 'Registration successful!', user: currentUser };
+    }
+    
+    return { success: false, message: 'Registration failed' };
+  } catch (error) {
+    return { success: false, message: error.message || 'Registration failed' };
+  }
 }
 
 // Get the previous page URL (the page user was on before login)
@@ -107,31 +106,33 @@ function saveCurrentPageForRedirect() {
   }
 }
 
-// Google Sign In (simulated)
-function googleSignIn() {
-  // Simulate Google OAuth - generate a realistic mock user
-  const randomId = Math.floor(Math.random() * 10000);
-  const mockGoogleUser = {
-    id: generateUserId(),
-    name: 'Google User ' + randomId,
-    email: 'user' + randomId + '@gmail.com',
-    phone: '',
-    createdAt: new Date().toISOString(),
-    provider: 'google'
-  };
+// Logout
+async function logout() {
+  try {
+    await apiLogout();
+  } catch (error) {
+    console.error('Logout error:', error);
+  }
   
-  currentUser = mockGoogleUser;
-  
-  // Save to localStorage for persistence
-  localStorage.setItem('fafoUser', JSON.stringify(currentUser));
-  
-  console.log('Google user logged in:', currentUser.email);
-  
-  return { success: true, message: 'Signed in with Google!', user: currentUser };
+  currentUser = null;
+  localStorage.removeItem('currentUser');
+  window.location.href = '/index.html';
 }
 
-// Simulate signup
-function signup(userData) {
+// Google Sign In
+function googleSignIn() {
+  // Redirect to Google OAuth endpoint
+  window.location.href = `${API_BASE_URL}/auth/google`;
+}
+
+// Facebook Sign In
+function facebookSignIn() {
+  // Redirect to Facebook OAuth endpoint
+  window.location.href = `${API_BASE_URL}/auth/facebook`;
+}
+
+// Signup with API
+async function signup(userData) {
   const { name, email, phone, password, confirmPassword } = userData;
   
   // Validation
@@ -155,48 +156,16 @@ function signup(userData) {
     return { success: false, message: 'Passwords do not match' };
   }
   
-  // Check if user already exists
-  const users = JSON.parse(localStorage.getItem('fafoUsers')) || [];
-  if (users.find(u => u.email === email)) {
-    return { success: false, message: 'An account with this email already exists' };
+  try {
+    const [firstName, ...lastNameParts] = name.split(' ');
+    const lastName = lastNameParts.join(' ');
+    
+    const response = await register(email, password, firstName, lastName);
+    return response;
+  } catch (error) {
+    return { success: false, message: error.message || 'Signup failed' };
   }
-  
-  // Create new user
-  const newUser = {
-    id: generateUserId(),
-    name: name,
-    email: email,
-    phone: phone,
-    password: password, // In real app, this would be hashed
-    createdAt: new Date().toISOString()
-  };
-  
-  // Save to "database"
-  users.push(newUser);
-  localStorage.setItem('fafoUsers', JSON.stringify(users));
-  
-  return { success: true, message: 'Account created successfully!' };
 }
-
-// Logout
-function logout() {
-  console.log('=== LOGOUT CALLED ===');
-  currentUser = null;
-  localStorage.removeItem('fafoUser');
-  console.log('User cleared from localStorage');
-  
-  // Show success message
-  if (typeof showAdvancedToast === 'function') {
-    console.log('Showing advanced toast');
-    showAdvancedToast('Successfully signed out!', 'success');
-  } else if (typeof showToast === 'function') {
-    console.log('Showing basic toast');
-    showToast('You have been logged out', 'info');
-  } else {
-    console.log('No toast function available');
-  }
-  
-  // Get current page
   const currentPage = window.location.pathname.split('/').pop() || 'index.html';
   console.log('Current page:', currentPage);
   
