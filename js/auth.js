@@ -1,0 +1,740 @@
+/* ============================================
+   FAFO FOOD - Authentication System
+   Simulated authentication for demo purposes
+   ============================================ */
+
+// ============================================
+// USER STATE - Always check localStorage first (persists across tabs/pages)
+// ============================================
+let currentUser = null;
+
+// Initialize user from storage immediately
+(function initUserState() {
+  const storedUser = localStorage.getItem('fafoUser');
+  if (storedUser) {
+    try {
+      currentUser = JSON.parse(storedUser);
+      console.log('User loaded from storage:', currentUser.email);
+    } catch (e) {
+      console.error('Error parsing stored user:', e);
+      localStorage.removeItem('fafoUser');
+    }
+  }
+})();
+
+// ============================================
+// AUTHENTICATION FUNCTIONS
+// ============================================
+
+// Check if user is logged in
+function isLoggedIn() {
+  return currentUser !== null;
+}
+
+// Get current user
+function getCurrentUser() {
+  return currentUser;
+}
+
+// Simulate login
+function login(email, password, remember = false) {
+  // In a real app, this would make an API call
+  // For demo, we accept any valid email format with password length >= 6
+  
+  if (!email || !validateEmail(email)) {
+    return { success: false, message: 'Please enter a valid email address' };
+  }
+  
+  if (!password || password.length < 6) {
+    return { success: false, message: 'Password must be at least 6 characters' };
+  }
+  
+  // Check if user exists in localStorage (simulated database)
+  const users = JSON.parse(localStorage.getItem('fafoUsers')) || [];
+  const user = users.find(u => u.email === email);
+  
+  if (user && user.password === password) {
+    // User found, log them in
+    currentUser = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      createdAt: user.createdAt
+    };
+  } else if (!user) {
+    // For demo purposes, create account if doesn't exist
+    currentUser = {
+      id: generateUserId(),
+      name: email.split('@')[0],
+      email: email,
+      phone: '',
+      createdAt: new Date().toISOString()
+    };
+    
+    // Also save to users database
+    users.push({
+      ...currentUser,
+      password: password
+    });
+    localStorage.setItem('fafoUsers', JSON.stringify(users));
+  } else {
+    return { success: false, message: 'Invalid email or password' };
+  }
+  
+  // Save to localStorage - this persists across browser sessions and page navigations
+  localStorage.setItem('fafoUser', JSON.stringify(currentUser));
+  
+  console.log('User logged in and saved:', currentUser.email);
+  
+  return { success: true, message: 'Login successful!', user: currentUser };
+}
+
+// Get the previous page URL (the page user was on before login)
+function getPreviousPage() {
+  const referrer = sessionStorage.getItem('redirectAfterLogin');
+  if (referrer && !referrer.includes('login.html') && !referrer.includes('signup.html') && !referrer.includes('forgot-password.html')) {
+    return referrer;
+  }
+  return 'index.html';
+}
+
+// Save current page before going to login
+function saveCurrentPageForRedirect() {
+  const currentPage = window.location.href;
+  if (!currentPage.includes('login.html') && !currentPage.includes('signup.html') && !currentPage.includes('forgot-password.html')) {
+    sessionStorage.setItem('redirectAfterLogin', currentPage);
+  }
+}
+
+// Google Sign In (simulated)
+function googleSignIn() {
+  // Simulate Google OAuth - generate a realistic mock user
+  const randomId = Math.floor(Math.random() * 10000);
+  const mockGoogleUser = {
+    id: generateUserId(),
+    name: 'Google User ' + randomId,
+    email: 'user' + randomId + '@gmail.com',
+    phone: '',
+    createdAt: new Date().toISOString(),
+    provider: 'google'
+  };
+  
+  currentUser = mockGoogleUser;
+  
+  // Save to localStorage for persistence
+  localStorage.setItem('fafoUser', JSON.stringify(currentUser));
+  
+  console.log('Google user logged in:', currentUser.email);
+  
+  return { success: true, message: 'Signed in with Google!', user: currentUser };
+}
+
+// Simulate signup
+function signup(userData) {
+  const { name, email, phone, password, confirmPassword } = userData;
+  
+  // Validation
+  if (!name || name.length < 2) {
+    return { success: false, message: 'Please enter your full name' };
+  }
+  
+  if (!email || !validateEmail(email)) {
+    return { success: false, message: 'Please enter a valid email address' };
+  }
+  
+  if (!phone || !validatePhone(phone)) {
+    return { success: false, message: 'Please enter a valid phone number' };
+  }
+  
+  if (!password || password.length < 6) {
+    return { success: false, message: 'Password must be at least 6 characters' };
+  }
+  
+  if (password !== confirmPassword) {
+    return { success: false, message: 'Passwords do not match' };
+  }
+  
+  // Check if user already exists
+  const users = JSON.parse(localStorage.getItem('fafoUsers')) || [];
+  if (users.find(u => u.email === email)) {
+    return { success: false, message: 'An account with this email already exists' };
+  }
+  
+  // Create new user
+  const newUser = {
+    id: generateUserId(),
+    name: name,
+    email: email,
+    phone: phone,
+    password: password, // In real app, this would be hashed
+    createdAt: new Date().toISOString()
+  };
+  
+  // Save to "database"
+  users.push(newUser);
+  localStorage.setItem('fafoUsers', JSON.stringify(users));
+  
+  return { success: true, message: 'Account created successfully!' };
+}
+
+// Logout
+function logout() {
+  console.log('=== LOGOUT CALLED ===');
+  currentUser = null;
+  localStorage.removeItem('fafoUser');
+  console.log('User cleared from localStorage');
+  
+  // Show success message
+  if (typeof showAdvancedToast === 'function') {
+    console.log('Showing advanced toast');
+    showAdvancedToast('Successfully signed out!', 'success');
+  } else if (typeof showToast === 'function') {
+    console.log('Showing basic toast');
+    showToast('You have been logged out', 'info');
+  } else {
+    console.log('No toast function available');
+  }
+  
+  // Get current page
+  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  console.log('Current page:', currentPage);
+  
+  // If on protected page (account, tracking, checkout), redirect to home
+  const protectedPages = ['account.html', 'checkout.html', 'tracking.html', 'order-success.html'];
+  
+  if (protectedPages.includes(currentPage)) {
+    console.log('Protected page - redirecting to home');
+    // Redirect to home page after a slight delay to show toast
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 1000);
+  } else {
+    console.log('Non-protected page - updating UI');
+    // Update UI on current page - do this with a small delay to ensure all functions are ready
+    setTimeout(() => {
+      console.log('Calling updateAuthUI');
+      if (typeof updateAuthUI === 'function') {
+        updateAuthUI();
+      } else {
+        console.log('updateAuthUI not available');
+      }
+      
+      console.log('Calling updateNavAuthUI');
+      if (typeof updateNavAuthUI === 'function') {
+        updateNavAuthUI();
+      } else {
+        console.log('updateNavAuthUI not available');
+      }
+      
+      // Force refresh UI by reloading initModals
+      console.log('Calling initModals');
+      if (typeof initModals === 'function') {
+        initModals();
+      }
+    }, 100);
+  }
+}
+
+
+// Check if user is logged in (call this on every page load)
+function checkAuthState() {
+  const storedUser = localStorage.getItem('fafoUser');
+  if (storedUser) {
+    try {
+      currentUser = JSON.parse(storedUser);
+      return true;
+    } catch (e) {
+      localStorage.removeItem('fafoUser');
+      currentUser = null;
+      return false;
+    }
+  }
+  return false;
+}
+
+// Protected pages list
+const protectedPages = ['account.html', 'checkout.html', 'tracking.html', 'order-success.html'];
+
+// Check if current page requires auth
+function checkPageProtection() {
+  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  
+  if (protectedPages.includes(currentPage) && !isLoggedIn()) {
+    sessionStorage.setItem('redirectAfterLogin', window.location.href);
+    window.location.href = 'login.html';
+    return false;
+  }
+  return true;
+}
+
+// Request password reset
+function requestPasswordReset(email) {
+  if (!email || !validateEmail(email)) {
+    return { success: false, message: 'Please enter a valid email address' };
+  }
+  
+  // Check if user exists
+  const users = JSON.parse(localStorage.getItem('fafoUsers')) || [];
+  const user = users.find(u => u.email === email);
+  
+  if (!user) {
+    // For security, don't reveal if email exists
+    return { success: true, message: 'If an account with this email exists, you will receive a password reset link.' };
+  }
+  
+  // In a real app, send email
+  // For demo, we'll just show success message
+  return { success: true, message: 'Password reset link sent to your email!' };
+}
+
+// Update user profile
+function updateProfile(updates) {
+  if (!currentUser) {
+    return { success: false, message: 'You must be logged in to update your profile' };
+  }
+  
+  // Validate updates
+  if (updates.name && updates.name.length < 2) {
+    return { success: false, message: 'Name must be at least 2 characters' };
+  }
+  
+  if (updates.phone && !validatePhone(updates.phone)) {
+    return { success: false, message: 'Please enter a valid phone number' };
+  }
+  
+  // Update current user
+  currentUser = { ...currentUser, ...updates };
+  
+  // Update in storage
+  localStorage.setItem('fafoUser', JSON.stringify(currentUser));
+  
+  // Update in "database"
+  const users = JSON.parse(localStorage.getItem('fafoUsers')) || [];
+  const userIndex = users.findIndex(u => u.id === currentUser.id);
+  if (userIndex > -1) {
+    users[userIndex] = { ...users[userIndex], ...updates };
+    localStorage.setItem('fafoUsers', JSON.stringify(users));
+  }
+  
+  return { success: true, message: 'Profile updated successfully!' };
+}
+
+// Change password
+function changePassword(currentPassword, newPassword, confirmPassword) {
+  if (!currentUser) {
+    return { success: false, message: 'You must be logged in to change your password' };
+  }
+  
+  if (!newPassword || newPassword.length < 6) {
+    return { success: false, message: 'New password must be at least 6 characters' };
+  }
+  
+  if (newPassword !== confirmPassword) {
+    return { success: false, message: 'Passwords do not match' };
+  }
+  
+  // Update in "database"
+  const users = JSON.parse(localStorage.getItem('fafoUsers')) || [];
+  const userIndex = users.findIndex(u => u.id === currentUser.id);
+  
+  if (userIndex > -1) {
+    // In real app, verify current password
+    users[userIndex].password = newPassword;
+    localStorage.setItem('fafoUsers', JSON.stringify(users));
+  }
+  
+  return { success: true, message: 'Password changed successfully!' };
+}
+
+// ============================================
+// ADDRESS MANAGEMENT
+// ============================================
+
+function getSavedAddresses() {
+  if (!currentUser) return [];
+  const addresses = JSON.parse(localStorage.getItem(`fafoAddresses_${currentUser.id}`)) || [];
+  return addresses;
+}
+
+function saveAddress(address) {
+  if (!currentUser) {
+    return { success: false, message: 'You must be logged in to save addresses' };
+  }
+  
+  const addresses = getSavedAddresses();
+  const newAddress = {
+    id: Date.now(),
+    ...address,
+    isDefault: addresses.length === 0
+  };
+  
+  addresses.push(newAddress);
+  localStorage.setItem(`fafoAddresses_${currentUser.id}`, JSON.stringify(addresses));
+  
+  return { success: true, message: 'Address saved!', address: newAddress };
+}
+
+function deleteAddress(addressId) {
+  if (!currentUser) return { success: false };
+  
+  let addresses = getSavedAddresses();
+  addresses = addresses.filter(a => a.id !== addressId);
+  localStorage.setItem(`fafoAddresses_${currentUser.id}`, JSON.stringify(addresses));
+  
+  return { success: true, message: 'Address deleted' };
+}
+
+function setDefaultAddress(addressId) {
+  if (!currentUser) return { success: false };
+  
+  let addresses = getSavedAddresses();
+  addresses = addresses.map(a => ({
+    ...a,
+    isDefault: a.id === addressId
+  }));
+  localStorage.setItem(`fafoAddresses_${currentUser.id}`, JSON.stringify(addresses));
+  
+  return { success: true, message: 'Default address updated' };
+}
+
+// ============================================
+// PAYMENT METHODS
+// ============================================
+
+function getSavedPaymentMethods() {
+  if (!currentUser) return [];
+  const methods = JSON.parse(localStorage.getItem(`fafoPaymentMethods_${currentUser.id}`)) || [];
+  return methods;
+}
+
+function savePaymentMethod(paymentDetails) {
+  if (!currentUser) {
+    return { success: false, message: 'You must be logged in to save payment methods' };
+  }
+  
+  const methods = getSavedPaymentMethods();
+  const newMethod = {
+    id: Date.now(),
+    ...paymentDetails,
+    isDefault: methods.length === 0,
+    savedAt: new Date().toISOString()
+  };
+  
+  methods.push(newMethod);
+  localStorage.setItem(`fafoPaymentMethods_${currentUser.id}`, JSON.stringify(methods));
+  
+  return { success: true, message: 'Payment method saved!', method: newMethod };
+}
+
+function deletePaymentMethod(methodId) {
+  if (!currentUser) return { success: false };
+  
+  let methods = getSavedPaymentMethods();
+  methods = methods.filter(m => m.id !== methodId);
+  localStorage.setItem(`fafoPaymentMethods_${currentUser.id}`, JSON.stringify(methods));
+  
+  return { success: true, message: 'Payment method deleted' };
+}
+
+function setDefaultPaymentMethod(methodId) {
+  if (!currentUser) return { success: false };
+  
+  let methods = getSavedPaymentMethods();
+  methods = methods.map(m => ({
+    ...m,
+    isDefault: m.id === methodId
+  }));
+  localStorage.setItem(`fafoPaymentMethods_${currentUser.id}`, JSON.stringify(methods));
+  
+  return { success: true, message: 'Default payment method updated' };
+}
+
+// ============================================
+// ORDER HISTORY
+// ============================================
+
+function getOrderHistory() {
+  if (!currentUser) return [];
+  
+  const orders = JSON.parse(localStorage.getItem('fafoOrders')) || [];
+  return orders.filter(o => o.customer.email === currentUser.email)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+}
+
+function getOrderDetails(orderId) {
+  const orders = JSON.parse(localStorage.getItem('fafoOrders')) || [];
+  return orders.find(o => o.id === orderId);
+}
+
+// ============================================
+// VALIDATION HELPERS
+// ============================================
+
+function validateEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+}
+
+function validatePhone(phone) {
+  const re = /^[\d\s+()-]{10,}$/;
+  return re.test(phone.replace(/\s/g, ''));
+}
+
+function generateUserId() {
+  return 'user_' + Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+// ============================================
+// UI FUNCTIONS
+// ============================================
+
+function updateAuthUI() {
+  const loginLinks = document.querySelectorAll('.auth-login-link');
+  const logoutLinks = document.querySelectorAll('.auth-logout-link');
+  const userNameElements = document.querySelectorAll('.auth-user-name');
+  const userEmailElements = document.querySelectorAll('.auth-user-email');
+  const userAvatarElements = document.querySelectorAll('.auth-user-avatar');
+  const authRequiredElements = document.querySelectorAll('.auth-required');
+  const guestOnlyElements = document.querySelectorAll('.guest-only');
+  
+  if (isLoggedIn()) {
+    // Show logged in state
+    loginLinks.forEach(el => el.style.display = 'none');
+    logoutLinks.forEach(el => el.style.display = 'flex');
+    authRequiredElements.forEach(el => el.style.display = 'block');
+    guestOnlyElements.forEach(el => el.style.display = 'none');
+    
+    // Update user info
+    userNameElements.forEach(el => el.textContent = currentUser.name);
+    userEmailElements.forEach(el => el.textContent = currentUser.email);
+    userAvatarElements.forEach(el => {
+      el.textContent = getInitials(currentUser.name);
+    });
+  } else {
+    // Show guest state
+    loginLinks.forEach(el => el.style.display = 'flex');
+    logoutLinks.forEach(el => el.style.display = 'none');
+    authRequiredElements.forEach(el => el.style.display = 'none');
+    guestOnlyElements.forEach(el => el.style.display = 'block');
+  }
+}
+
+function getInitials(name) {
+  if (!name) return 'U';
+  const parts = name.trim().split(' ');
+  if (parts.length === 1) {
+    return parts[0].charAt(0).toUpperCase();
+  }
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+}
+
+// Protect pages that require authentication
+function requireAuth() {
+  if (!isLoggedIn()) {
+    // Save intended destination
+    sessionStorage.setItem('redirectAfterLogin', window.location.href);
+    window.location.href = 'login.html';
+    return false;
+  }
+  return true;
+}
+
+// Redirect logged in users away from auth pages
+function redirectIfLoggedIn() {
+  if (isLoggedIn()) {
+    const redirect = sessionStorage.getItem('redirectAfterLogin') || 'account.html';
+    sessionStorage.removeItem('redirectAfterLogin');
+    window.location.href = redirect;
+  }
+}
+
+// ============================================
+// FORM HANDLERS
+// ============================================
+
+function initLoginForm() {
+  const form = document.querySelector('.login-form');
+  if (!form) return;
+  
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const email = form.querySelector('input[name="email"]').value;
+    const password = form.querySelector('input[name="password"]').value;
+    const remember = form.querySelector('input[name="remember"]')?.checked || false;
+    
+    const result = login(email, password, remember);
+    
+    if (result.success) {
+      showToast(result.message, 'success');
+      // Go back to the page user was on, or home if no previous page
+      const redirect = getPreviousPage();
+      sessionStorage.removeItem('redirectAfterLogin');
+      setTimeout(() => window.location.href = redirect, 1000);
+    } else {
+      showToast(result.message, 'error');
+    }
+  });
+}
+
+function initSignupForm() {
+  const form = document.querySelector('.signup-form');
+  if (!form) return;
+  
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const userData = {
+      name: form.querySelector('input[name="fullName"]').value,
+      email: form.querySelector('input[name="email"]').value,
+      phone: form.querySelector('input[name="phone"]').value,
+      password: form.querySelector('input[name="password"]').value,
+      confirmPassword: form.querySelector('input[name="confirmPassword"]').value
+    };
+    
+    const termsAccepted = form.querySelector('input[name="terms"]')?.checked;
+    
+    if (!termsAccepted) {
+      showToast('Please accept the terms and conditions', 'error');
+      return;
+    }
+    
+    const result = signup(userData);
+    
+    if (result.success) {
+      showToast(result.message, 'success');
+      setTimeout(() => window.location.href = 'login.html', 1500);
+    } else {
+      showToast(result.message, 'error');
+    }
+  });
+}
+
+function initForgotPasswordForm() {
+  const form = document.querySelector('.forgot-form');
+  if (!form) return;
+  
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const email = form.querySelector('input[name="email"]').value;
+    const result = requestPasswordReset(email);
+    
+    showToast(result.message, result.success ? 'success' : 'error');
+    
+    if (result.success) {
+      form.reset();
+    }
+  });
+}
+
+// ============================================
+// INITIALIZE AUTH
+// ============================================
+
+function initAuth() {
+  console.log('Initializing auth system...');
+  
+  // CRITICAL: Load user from localStorage on every page
+  const savedUser = localStorage.getItem('fafoUser');
+  if (savedUser) {
+    try {
+      currentUser = JSON.parse(savedUser);
+      console.log('Auth: User session restored:', currentUser.email);
+    } catch (e) {
+      console.error('Auth: Error parsing user data:', e);
+      localStorage.removeItem('fafoUser');
+      currentUser = null;
+    }
+  } else {
+    console.log('Auth: No saved user session');
+    currentUser = null;
+  }
+  
+  // If we're on a login/signup page, save the referrer for redirect after login
+  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  if (currentPage === 'login.html' || currentPage === 'signup.html') {
+    // Check if we have a referrer and it's not already a login page
+    const referrer = document.referrer;
+    if (referrer && !referrer.includes('login.html') && !referrer.includes('signup.html') && !referrer.includes('forgot-password.html')) {
+      // Only save if we don't already have a saved redirect
+      if (!sessionStorage.getItem('redirectAfterLogin')) {
+        sessionStorage.setItem('redirectAfterLogin', referrer);
+        console.log('Auth: Saved referrer for redirect:', referrer);
+      }
+    }
+  }
+  
+  // Check page protection first
+  if (!checkPageProtection()) {
+    return; // Stop if redirecting
+  }
+  
+  // Update UI based on auth state
+  updateAuthUI();
+  
+  // Initialize forms if on auth pages
+  initLoginForm();
+  initSignupForm();
+  initForgotPasswordForm();
+  initGoogleSignIn();
+  
+  // Check page requirements
+  if (document.querySelector('.auth-required-page') && !isLoggedIn()) {
+    requireAuth();
+  }
+  
+  if (document.querySelector('.guest-only-page') && isLoggedIn()) {
+    redirectIfLoggedIn();
+  }
+  
+  console.log('Auth initialization complete. Logged in:', isLoggedIn());
+}
+
+// Initialize Google Sign In buttons
+function initGoogleSignIn() {
+  const googleBtns = document.querySelectorAll('.google-signin-btn, .social-btn');
+  
+  googleBtns.forEach(btn => {
+    btn.style.cursor = 'pointer';
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      // Show loading state
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner"></span> Connecting to Google...';
+      btn.disabled = true;
+      
+      // Simulate Google OAuth delay
+      setTimeout(() => {
+        const result = googleSignIn();
+        
+        if (result.success) {
+          if (typeof showToast === 'function') {
+            showToast(result.message, 'success');
+          }
+          
+          // Go back to the page user was on, or home if no previous page
+          const redirect = getPreviousPage();
+          sessionStorage.removeItem('redirectAfterLogin');
+          setTimeout(() => window.location.href = redirect, 1000);
+        } else {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+          if (typeof showToast === 'function') {
+            showToast('Google sign in failed. Please try again.', 'error');
+          }
+        }
+      }, 1500);
+    });
+  });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', initAuth);
+
+// Also run immediately if DOM is already loaded
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  setTimeout(initAuth, 1);
+}

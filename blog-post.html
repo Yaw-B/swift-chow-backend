@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Post - SWIFT CHOW</title>
+    <meta name="description" content="Read our latest blog post about food and fast food culture in Ghana.">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+</head>
+<body data-page="blog-post">
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="foodLogo6" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#FFB627;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <!-- Fork Prongs -->
+                        <line x1="7" y1="3" x2="7" y2="14" stroke="url(#foodLogo6)" stroke-width="1.5" stroke-linecap="round"/>
+                        <line x1="12" y1="3" x2="12" y2="14" stroke="url(#foodLogo6)" stroke-width="1.5" stroke-linecap="round"/>
+                        <line x1="17" y1="3" x2="17" y2="14" stroke="url(#foodLogo6)" stroke-width="1.5" stroke-linecap="round"/>
+                        <!-- Fork Handle -->
+                        <path d="M10 14Q12 16 12 18" stroke="url(#foodLogo6)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                        <!-- Plate -->
+                        <circle cx="12" cy="19" r="5" stroke="url(#foodLogo6)" stroke-width="1.2" fill="none"/>
+                        <!-- Food on plate -->
+                        <circle cx="13" cy="17" r="1.2" fill="url(#foodLogo6)"/>
+                        <circle cx="11" cy="18" r="1" fill="url(#foodLogo6)" opacity="0.7"/>
+                    </svg>
+                </div>
+                <span class="logo-text">SWIFT <span>CHOW</span></span>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="menu.html">Menu</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="blog.html" class="active">Blog</a></li>                <li><a href="reviews.html">Reviews</a></li>                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            
+            <div class="nav-actions">
+                <button class="nav-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="cart.html" class="nav-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" style="display: none;">0</span>
+                </a>
+                <button id="loginBtn" class="btn btn-primary btn-sm">
+                    <i class="fas fa-user"></i> Login
+                </button>
+                <button class="mobile-menu-btn" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <ul class="mobile-nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="menu.html">Menu</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="blog.html" class="active">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="login.html">Login</a></li>
+        </ul>
+    </nav>
+    
+    <!-- Blog Post Content -->
+    <section class="section" style="padding-top: 100px;">
+        <div class="blog-post-container">
+            <article>
+                <header class="blog-post-header">
+                    <span class="blog-post-category">Food History</span>
+                    <h1 class="blog-post-title">The History of Burgers: From Hamburg to Ghana</h1>
+                    <div class="blog-post-meta">
+                        <div class="blog-post-author">
+                            <div class="author-avatar">EB</div>
+                            <div>
+                                <strong class="blog-post-author-name">Edwin Boadi</strong>
+                            </div>
+                        </div>
+                        <span class="blog-post-date"><i class="far fa-calendar"></i> January 15, 2026</span>
+                        <span><i class="far fa-clock"></i> 5 min read</span>
+                    </div>
+                </header>
+                
+                <div class="blog-post-image">
+                    <img src="https://placehold.co/800x400/DC2626/FFFFFF?text=Burger+History" alt="The History of Burgers">
+                </div>
+                
+                <div class="blog-post-content">
+                    <p>The humble hamburger has become one of the most iconic foods in the world, and its journey from the streets of Hamburg, Germany to the bustling markets of Accra, Ghana is a fascinating tale of culinary evolution and cultural adaptation.</p>
+                    
+                    <h2>The Origins: Hamburg, Germany</h2>
+                    <p>The story begins in the 19th century in the German city of Hamburg. German immigrants brought with them a dish called "Hamburg steak" – a minced beef patty seasoned with onions and spices. When these immigrants arrived in America, they brought this culinary tradition with them.</p>
+                    
+                    <p>By the late 1800s, American cooks had begun placing the Hamburg steak between two slices of bread for easier eating on the go. The exact inventor is disputed, but what's certain is that by 1904, the hamburger was already a popular item at the St. Louis World's Fair.</p>
+                    
+                    <h2>The Global Journey</h2>
+                    <p>Throughout the 20th century, the hamburger spread across the globe, adapted by each culture it touched:</p>
+                    <ul>
+                        <li>In Japan, it became the "hambāgu," often served with rice</li>
+                        <li>In Australia, they added beetroot and fried eggs</li>
+                        <li>In Mexico, jalapeños and salsa became standard toppings</li>
+                        <li>And in Ghana, we've added our own unique twist...</li>
+                    </ul>
+                    
+                    <h2>The Burger Comes to Ghana</h2>
+                    <p>Fast food culture began emerging in Ghana in the 1990s, but it was the 2000s that saw the real burger revolution. International chains introduced Ghanaians to the concept, but it was local entrepreneurs who made it their own.</p>
+                    
+                    <p>At SWIFT CHOW, we honor this tradition while embracing our Ghanaian heritage. Our Spicy Jerk Burger, for instance, combines the classic American format with Caribbean and West African spices that our customers love. Our Meat Pies, while not burgers, represent another form of this cultural fusion – taking a British concept and making it unmistakably Ghanaian.</p>
+                    
+                    <h2>The Future of Burgers in Ghana</h2>
+                    <p>As we look ahead, we see exciting possibilities. More local ingredients, sustainable practices, and innovative flavor combinations. The burger's journey isn't over – it's simply entering its next chapter, and we're proud to be writing it here in Ghana.</p>
+                    
+                    <p>Next time you bite into one of our burgers, remember: you're not just eating a sandwich. You're partaking in a culinary tradition that spans continents, centuries, and cultures. That's something worth savoring.</p>
+                </div>
+                
+                <!-- Share Section -->
+                <div class="share-section">
+                    <span>Share this article:</span>
+                    <div class="share-buttons">
+                        <a href="#" class="share-btn"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="share-btn"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="share-btn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="share-btn"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Author Box -->
+                <div style="background: var(--bg-secondary); border-radius: var(--radius-lg); padding: 1.5rem; margin: 2rem 0; display: flex; gap: 1.5rem; align-items: center;">
+                    <div style="width: 80px; height: 80px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; font-weight: 700; flex-shrink: 0;">EB</div>
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem;">Edwin Boadi</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Founder of SWIFT CHOW and food enthusiast. Edwin loves exploring the intersection of food, culture, and community. When not running the business, he's experimenting with new recipes in the kitchen.</p>
+                    </div>
+                </div>
+            </article>
+            
+            <!-- Related Posts -->
+            <div class="related-posts">
+                <h3>Related Articles</h3>
+                <div class="blog-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                    <article class="blog-card">
+                        <div class="blog-card-image">
+                            <img src="https://placehold.co/400x250/DC2626/FFFFFF?text=Pizza+Africa" alt="Pizza in Africa">
+                        </div>
+                        <div class="blog-card-content">
+                            <div class="blog-card-meta">
+                                <span><i class="far fa-calendar"></i> January 12, 2026</span>
+                            </div>
+                            <h3 class="blog-card-title">Why Pizza Became Africa's Favorite Fast Food</h3>
+                            <a href="blog-post.html?id=2" class="blog-card-link">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+                    <article class="blog-card">
+                        <div class="blog-card-image">
+                            <img src="https://placehold.co/400x250/DC2626/FFFFFF?text=Street+Food" alt="Street Food">
+                        </div>
+                        <div class="blog-card-content">
+                            <div class="blog-card-meta">
+                                <span><i class="far fa-calendar"></i> January 10, 2026</span>
+                            </div>
+                            <h3 class="blog-card-title">5 Must-Try Street Foods in Accra</h3>
+                            <a href="blog-post.html?id=3" class="blog-card-link">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">
+                        <div class="logo-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 8C4 5.79086 5.79086 4 8 4H16C18.2091 4 20 5.79086 20 8V9H4V8Z" stroke="white" stroke-width="2"/>
+                                <rect x="4" y="11" width="16" height="4" rx="2" stroke="white" stroke-width="2"/>
+                                <path d="M4 17H20V18C20 20.2091 18.2091 22 16 22H8C5.79086 22 4 20.2091 4 18V17Z" stroke="white" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <span class="logo-text" style="color: white;">SWIFT <span style="color: var(--primary);">CHOW</span></span>
+                    </a>
+                    <p>Ghana's favorite fast food destination.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="menu.html">Our Menu</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Contact Us</h4>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>+233 50 507 0941</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>orders@swiftchow.com</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2026 SWIFT CHOW. Designed by Ayensu Edwin Yaw Boadi</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript Files - Order matters! -->
+    <script src="js/data.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+
+    <!-- LOGIN MODAL -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Close modal"><i class="fas fa-times"></i></button>
+            
+            <div class="modal-header">
+                <a href="#" class="logo">
+                    <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+                    <div class="logo-text">SWIFT <span>CHOW</span></div>
+                </a>
+                <h2>Welcome Back!</h2>
+                <p>Log in to your account to continue</p>
+            </div>
+
+            <div class="modal-body">
+                <form id="loginModalForm" class="form">
+                    <div class="form-group">
+                        <label for="login-email">Email Address</label>
+                        <input type="email" id="login-email" name="email" placeholder="your@email.com" required>
+                        <div class="form-feedback error" style="display: none;"></div>
+                        <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Email verified</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
+                        <div class="form-feedback error" style="display: none;"></div>
+                        <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Password valid</div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 1rem 0;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="remember">
+                            <span>Remember me</span>
+                        </label>
+                        <a href="forgot-password.html" style="color: var(--primary); text-decoration: none; font-size: 0.9rem;">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">Sign In</button>
+                </form>
+
+                <div style="margin: 2rem 0; position: relative;">
+                    <div style="border-top: 1px solid var(--border-color);"></div>
+                    <span style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--bg-primary); padding: 0 1rem; color: var(--text-secondary); font-size: 0.85rem;">or continue with</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <button type="button" class="btn btn-outline" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="fab fa-google"></i> Google
+                    </button>
+                    <button type="button" class="btn btn-outline" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="fab fa-facebook"></i> Facebook
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                Don't have an account? <a href="#" data-action="switch-to-signup">Sign up</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIGNUP MODAL -->
+    <div id="signupModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Close modal"><i class="fas fa-times"></i></button>
+            
+            <div class="modal-header">
+                <a href="#" class="logo">
+                    <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+                    <div class="logo-text">SWIFT <span>CHOW</span></div>
+                </a>
+                <h2>Join Us!</h2>
+                <p>Create your account to start ordering</p>
+            </div>
+
+            <div class="modal-body">
+                <form id="signupModalForm" class="form">
+                    <div class="form-group">
+                        <label for="signup-fullname">Full Name</label>
+                        <input type="text" id="signup-fullname" name="fullName" placeholder="Your full name" required>
+                        <div class="form-feedback error" style="display: none;"></div>
+                        <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Name valid</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-email">Email Address</label>
+                        <input type="email" id="signup-email" name="email" placeholder="your@email.com" required>
+                        <div class="form-feedback error" style="display: none;"></div>
+                        <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Email verified</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-phone">Phone Number</label>
+                        <input type="tel" id="signup-phone" name="phone" placeholder="+233 50 507 0941" required>
+                        <div class="form-feedback error" style="display: none;"></div>
+                        <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Phone valid</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="signup-password">Password</label>
+                            <input type="password" id="signup-password" name="password" placeholder="At least 6 characters" required>
+                            <div class="form-feedback error" style="display: none;"></div>
+                            <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Password valid</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-confirm">Confirm Password</label>
+                            <input type="password" id="signup-confirm" name="confirmPassword" placeholder="Confirm password" required>
+                            <div class="form-feedback error" style="display: none;"></div>
+                            <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Passwords match</div>
+                        </div>
+                    </div>
+
+                    <label style="display: flex; align-items: flex-start; gap: 0.5rem; margin: 1rem 0; cursor: pointer;">
+                        <input type="checkbox" name="terms" required style="margin-top: 0.3rem;">
+                        <span style="font-size: 0.9rem;">I agree to the <a href="terms.html" style="color: var(--primary);">Terms & Conditions</a></span>
+                    </label>
+
+                    <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">Create Account</button>
+                </form>
+
+                <div style="margin: 2rem 0; position: relative;">
+                    <div style="border-top: 1px solid var(--border-color);"></div>
+                    <span style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--bg-primary); padding: 0 1rem; color: var(--text-secondary); font-size: 0.85rem;">or sign up with</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <button type="button" class="btn btn-outline" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="fab fa-google"></i> Google
+                    </button>
+                    <button type="button" class="btn btn-outline" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="fab fa-facebook"></i> Facebook
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                Already have an account? <a href="#" data-action="switch-to-login">Sign in</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- CART MODAL PANEL -->
+    <!-- CART MODAL PANEL -->
+    <div id="cartModal" class="modal-overlay">
+        <div class="modal-content" style="position: fixed; right: 0; top: 0; max-width: 450px; height: 100vh; border-radius: 0; max-height: 100vh; overflow-y: auto; animation: slideInRight 0.3s ease;">
+            <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0;"><i class="fas fa-shopping-cart"></i> Your Cart</h2>
+                <button class="modal-close" onclick="closeModal(document.getElementById('cartModal')); document.body.style.overflow = 'auto';" aria-label="Close cart"><i class="fas fa-times" style="font-size: 1.5rem;"></i></button>
+            </div>
+
+            <div class="modal-body" style="padding: 1.5rem; padding-bottom: 200px; min-height: calc(100vh - 300px);">
+                <div class="cart-items-modal-list">
+                    <!-- Cart items will be rendered here by JavaScript -->
+                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                        <i class="fas fa-shopping-cart" style="font-size: 3rem; opacity: 0.5; margin-bottom: 1rem;"></i>
+                        <p>Your cart is empty</p>
+                        <a href="menu.html" class="btn btn-primary btn-sm" style="margin-top: 1rem;">Browse Menu</a>
+                    </div>
+                </div>
+            </div>
+
+            <div style="position: fixed; bottom: 0; right: 0; width: 450px; background: var(--bg-primary); border-top: 1px solid var(--border-color); padding: 1.5rem;">
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.95rem;">
+                        <span>Subtotal:</span>
+                        <span class="cart-subtotal">GHS 0.00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.95rem;">
+                        <span>Delivery:</span>
+                        <span class="cart-delivery">GHS 15.00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 1.2rem; color: var(--primary);">
+                        <span>Total:</span>
+                        <span class="cart-total">GHS 0.00</span>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <button class="btn btn-outline" onclick="closeModal(document.getElementById('cartModal')); document.body.style.overflow = 'auto';" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="fas fa-arrow-left"></i> Continue
+                    </button>
+                    <button class="btn btn-primary" onclick="proceedToCheckout()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class="fas fa-lock"></i> Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
