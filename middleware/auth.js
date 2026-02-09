@@ -43,7 +43,7 @@ const requireAuth = async (req, res, next) => {
  * Middleware for optional authentication
  * Sets req.user if authenticated, otherwise continues
  */
-export const optionalAuth = async (req, res, next) => {
+const optionalAuth = async (req, res, next) => {
   try {
     let token = req.cookies?.token;
     
@@ -73,7 +73,7 @@ export const optionalAuth = async (req, res, next) => {
 /**
  * Middleware to handle errors
  */
-export const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
   console.error('Error:', err);
   
   if (err.name === 'ValidationError') {
