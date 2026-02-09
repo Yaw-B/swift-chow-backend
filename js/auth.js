@@ -645,10 +645,13 @@ function initAuth() {
   
   // CRITICAL: Load user from localStorage on every page
   const savedUser = localStorage.getItem('fafoUser');
+  const savedToken = localStorage.getItem('authToken');
+  
   if (savedUser) {
     try {
       currentUser = JSON.parse(savedUser);
       console.log('Auth: User session restored:', currentUser.email);
+      console.log('Auth: Token available:', !!savedToken);
     } catch (e) {
       console.error('Auth: Error parsing user data:', e);
       localStorage.removeItem('fafoUser');

@@ -2251,7 +2251,10 @@ function updateAuthUI() {
     oldUserProfile.remove();
   }
   
-  if (user && isLoggedIn()) {
+  // Check if user is logged in - trust currentUser if it exists, or check token
+  const isUserLoggedIn = user || isLoggedIn();
+  
+  if (isUserLoggedIn) {
     console.log('updateAuthUI: User is logged in, showing avatar');
     
     // Hide login button when user is logged in
