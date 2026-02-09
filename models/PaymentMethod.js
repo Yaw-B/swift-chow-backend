@@ -82,4 +82,4 @@ paymentMethodSchema.methods.toJSON = function() {
   return method;
 };
 
-export default mongoose.model('PaymentMethod', paymentMethodSchema);
+module.exports = mongoose.model('PaymentMethod', paymentMethodSchema);
