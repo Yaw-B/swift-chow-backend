@@ -124,9 +124,30 @@ async function logout() {
     console.error('Logout error:', error);
   }
   
+  // Clear local auth state
   currentUser = null;
-  localStorage.removeItem('currentUser');
-  window.location.href = '/index.html';
+  
+  // Call updateAuthUI immediately if available
+  if (typeof updateAuthUI === 'function') {
+    updateAuthUI();
+  }
+  
+  // Remove any old user profile elements
+  const oldProfile = document.querySelector('.user-profile');
+  if (oldProfile) {
+    oldProfile.remove();
+  }
+  
+  // Show login button if it exists
+  const loginBtn = document.querySelector('#loginBtn');
+  if (loginBtn) {
+    loginBtn.style.display = 'block';
+  }
+  
+  // Redirect after UI update
+  setTimeout(() => {
+    window.location.href = '/index.html';
+  }, 300);
 }
 
 // Google Sign In
