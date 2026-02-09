@@ -178,44 +178,6 @@ async function signup(userData) {
     return { success: false, message: error.message || 'Signup failed' };
   }
 }
-  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-  console.log('Current page:', currentPage);
-  
-  // If on protected page (account, tracking, checkout), redirect to home
-  const protectedPages = ['account.html', 'checkout.html', 'tracking.html', 'order-success.html'];
-  
-  if (protectedPages.includes(currentPage)) {
-    console.log('Protected page - redirecting to home');
-    // Redirect to home page after a slight delay to show toast
-    setTimeout(() => {
-      window.location.href = 'index.html';
-    }, 1000);
-  } else {
-    console.log('Non-protected page - updating UI');
-    // Update UI on current page - do this with a small delay to ensure all functions are ready
-    setTimeout(() => {
-      console.log('Calling updateAuthUI');
-      if (typeof updateAuthUI === 'function') {
-        updateAuthUI();
-      } else {
-        console.log('updateAuthUI not available');
-      }
-      
-      console.log('Calling updateNavAuthUI');
-      if (typeof updateNavAuthUI === 'function') {
-        updateNavAuthUI();
-      } else {
-        console.log('updateNavAuthUI not available');
-      }
-      
-      // Force refresh UI by reloading initModals
-      console.log('Calling initModals');
-      if (typeof initModals === 'function') {
-        initModals();
-      }
-    }, 100);
-  }
-}
 
 
 // Check if user is logged in (call this on every page load)
