@@ -587,24 +587,36 @@ function initAuth() {
   if (tokenFromUrl) {
     console.log('Auth: OAuth callback detected, processing token...');
     try {
-      // Save token and user data
+      // Save token FIRST (most important)
       localStorage.setItem('authToken', tokenFromUrl);
+      console.log('Auth: Token saved to localStorage');
       
       if (userFromUrl) {
-        const userData = JSON.parse(decodeURIComponent(userFromUrl));
-        currentUser = userData;
-        localStorage.setItem('fafoUser', JSON.stringify(userData));
-        console.log('Auth: OAuth user saved:', userData.email);
+        try {
+          const userData = JSON.parse(decodeURIComponent(userFromUrl));
+          currentUser = userData;
+          localStorage.setItem('fafoUser', JSON.stringify(userData));
+          console.log('Auth: OAuth user saved:', userData.email);
+        } catch (parseError) {
+          console.error('Auth: Error parsing user data from URL:', parseError);
+        }
       }
       
-      // Clean up URL to remove token
+      // Clean up URL to remove token (for cleaner history)
       window.history.replaceState({}, document.title, window.location.pathname);
       
-      // Update UI immediately
-      if (updateAuthUI) updateAuthUI();
-      if (updateFloatingCart) updateFloatingCart();
+      // Update UI after a short delay to ensure all scripts are loaded
+      setTimeout(() => {
+        if (typeof updateAuthUI === 'function') {
+          console.log('Auth: Calling updateAuthUI after OAuth callback');
+          updateAuthUI();
+        }
+        if (typeof updateFloatingCart === 'function') {
+          updateFloatingCart();
+        }
+      }, 100);
       
-      console.log('Auth: OAuth login complete');
+      console.log('Auth: OAuth login complete, token available:', !!localStorage.getItem('authToken'));
     } catch (e) {
       console.error('Auth: Error processing OAuth callback:', e);
     }
@@ -645,8 +657,18 @@ function initAuth() {
     return; // Stop if redirecting
   }
   
-  // Update UI based on auth state
-  updateAuthUI();
+  // Update UI based on auth state (if main.js has loaded)
+  if (typeof updateAuthUI === 'function') {
+    updateAuthUI();
+  } else {
+    // main.js hasn't loaded yet, schedule it for later
+    setTimeout(() => {
+      if (typeof updateAuthUI === 'function') {
+        console.log('Auth: Calling updateAuthUI after main.js loaded');
+        updateAuthUI();
+      }
+    }, 100);
+  }
   
   // Initialize forms if on auth pages
   initLoginForm();

@@ -11,15 +11,24 @@
 </head>
 <body data-page="account">
     <script>
-        // Protect this page - check after a delay to ensure api.js is loaded
-        setTimeout(() => {
-            if (typeof isAuthenticated === 'function') {
-                if (!isAuthenticated()) {
+        // Protect this page - check token in localStorage
+        (function() {
+            // Function to check if user is authenticated
+            function checkAuth() {
+                const token = localStorage.getItem('authToken');
+                const hasToken = !!token && token.length > 0;
+                console.log('Account page: Token check -', hasToken ? 'Authenticated' : 'Not authenticated');
+                
+                if (!hasToken) {
                     console.log('Not authenticated, redirecting to login');
                     window.location.href = 'login.html?return=' + encodeURIComponent(window.location.pathname);
                 }
             }
-        }, 500);
+            
+            // Check immediately and after scripts load
+            checkAuth();
+            setTimeout(checkAuth, 500);
+        })();
     </script>
     <!-- Header -->
     <header class="header">
