@@ -2110,8 +2110,8 @@ input, textarea, select {
     display: grid;
     grid-template-columns: 1fr 380px;
     gap: 2rem;
-    padding-top: 100px;
-    min-height: calc(100vh - 200px);
+    padding: 2rem 0;
+    min-height: calc(100vh - 400px);
 }
 
 .cart-items {
