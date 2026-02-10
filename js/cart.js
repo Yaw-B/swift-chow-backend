@@ -576,6 +576,15 @@ function processOrder(orderData) {
   localStorage.setItem('lastOrder', JSON.stringify(order));
   sessionStorage.setItem('lastOrder', JSON.stringify(order)); // Also save to sessionStorage for quick access
   
+  console.log('Order processed and saved:', {
+    id: order.id,
+    timestamp: order.timestamp,
+    city: order.city,
+    totalItems: order.items.length,
+    inSessionStorage: sessionStorage.getItem('lastOrder') ? 'YES' : 'NO',
+    inLocalStorage: localStorage.getItem('lastOrder') ? 'YES' : 'NO'
+  });
+  
   // Clear cart
   cart = [];
   saveCart();
