@@ -17,6 +17,7 @@ async function loadCart() {
     // If not logged in, use localStorage
     cart = JSON.parse(localStorage.getItem('swiftChowCart')) || [];
     cartLoaded = true;
+    window.cart = cart; // Sync to window object
     console.log('Cart loaded from localStorage:', cart.length, 'items');
     updateCartDisplay();
     updateCartCount();
@@ -72,6 +73,7 @@ async function loadCart() {
     localStorage.removeItem('swiftChowCart');
     
     console.log('Cart loaded from API with localStorage merge:', cart.length, 'items');
+    window.cart = cart; // Sync to window object
     updateCartDisplay();
     updateCartCount();
   } catch (error) {
@@ -80,6 +82,7 @@ async function loadCart() {
     cart = JSON.parse(localStorage.getItem('swiftChowCart')) || [];
     cartLoaded = true;
     console.log('Cart loaded from localStorage (fallback):', cart.length, 'items');
+    window.cart = cart; // Sync to window object
     updateCartDisplay();
     updateCartCount();
   }
@@ -91,10 +94,15 @@ async function loadCart() {
 
 // Save cart (to localStorage if not logged in)
 async function saveCart() {
-  window.cart = cart; // Keep window.cart in sync
+  window.cart = cart; // Always keep window.cart in sync FIRST
+  
   if (isAuthenticated()) {
     try {
-      await apiGetCart(); // Sync with server
+      const response = await apiGetCart(); // Sync with server
+      if (response && response.items) {
+        cart = response.items;
+        window.cart = cart; // Update window.cart with latest from server
+      }
     } catch (error) {
       console.error('Error syncing cart:', error);
     }
