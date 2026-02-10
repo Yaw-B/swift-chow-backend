@@ -535,7 +535,7 @@ function updateCheckoutTotals(selectedCity = null) {
 function generateOrderId() {
   const timestamp = Date.now().toString(36).toUpperCase();
   const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-  return `FAFO-${timestamp}-${random}`;
+  return `SWIFT-${timestamp}-${random}`;
 }
 
 // Process order
@@ -607,8 +607,8 @@ function getLastOrder() {
 // ============================================
 
 const promoCodes = {
-  'FAFO10': { type: 'percentage', value: 10, minOrder: 50 },
-  'FAFO20': { type: 'percentage', value: 20, minOrder: 100 },
+  'SWIFT10': { type: 'percentage', value: 10, minOrder: 50 },
+  'SWIFT20': { type: 'percentage', value: 20, minOrder: 100 },
   'FREESHIP': { type: 'freeDelivery', value: 0, minOrder: 0 },
   'WELCOME': { type: 'fixed', value: 15, minOrder: 50 }
 };

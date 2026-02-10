@@ -1,5 +1,5 @@
 /* ============================================
-   FAFO FOOD - Main JavaScript
+   SWIFT CHOW - Main JavaScript
    Core functionality and UI interactions
    ============================================ */
 
@@ -3507,7 +3507,7 @@ function updateFloatingCart() {
   const itemsContainer = document.querySelector('.floating-cart-items');
   if (itemsContainer && currentCart && currentCart.length > 0) {
     itemsContainer.innerHTML = currentCart.map(item => {
-      return '<div style="padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; gap: 8px; align-items: center;"><img src="' + item.image + '" alt="' + item.name + '" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;"><div style="flex: 1; font-size: 0.85rem;"><div style="font-weight: 500;">' + item.name + '</div><div style="color: var(--text-secondary);">x' + item.quantity + '</div></div><div style="font-weight: 600; white-space: nowrap;">GHS ' + (item.price * item.quantity).toFixed(2) + '</div></div>';
+      return '<div style="padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; gap: 8px; align-items: center;"><img src="' + item.image + '" alt="' + item.name + '" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;"><div style="flex: 1; font-size: 0.85rem;"><div style="font-weight: 500;">' + item.name + '</div><div style="color: var(--text-secondary);">x' + item.quantity + '</div></div><div style="font-weight: 600; white-space: nowrap; display: flex; align-items: center; gap: 6px;"><span>GHS ' + (item.price * item.quantity).toFixed(2) + '</span><button class="btn btn-sm" style="padding: 4px 6px; font-size: 0.75rem; color: #dc2626; background: none; border: none; cursor: pointer; margin: 0;" onclick="removeFromCart(' + item.id + ')"><i class="fas fa-trash"></i></button></div></div>';
     }).join('');
   } else if (itemsContainer) {
     itemsContainer.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">Cart is empty</div>';
