@@ -12,7 +12,7 @@
         .success-container {
             max-width: 600px;
             margin: 2rem auto;
-            background: white;
+            background: var(--bg-primary);
             border-radius: 1rem;
             padding: 2rem;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
@@ -568,13 +568,29 @@
                     conf.el.style.opacity = opacity;
                     conf.el.style.transform = `rotate(${rotation}deg) scale(${1 - (top / (window.innerHeight * 1.5))})`;
                     conf.el.dataset.rotation = rotation;
-                    conf.vy += 0.1; // gravity\n                    \n                    if (top > window.innerHeight) {\n                        conf.el.remove();\n                        confettis.splice(index, 1);\n                    }\n                });\n                \n                if (confettis.length > 0) {\n                    requestAnimationFrame(animate);\n                }\n            };\n            \n            animate();\n        }\n        
+                    conf.vy += 0.1; // gravity
+                    
+                    if (top > window.innerHeight) {
+                        conf.el.remove();
+                        confettis.splice(index, 1);
+                    }
+                });
+                
+                if (confettis.length > 0) {
+                    requestAnimationFrame(animate);
+                }
+            };
+            
+            animate();
+        }
+        
         // Trigger confetti when page loads
         window.addEventListener('load', () => {
             setTimeout(createConfetti, 300);
         });
         
-        // Load order details from URL parameter\n        function loadOrderDetails() {
+        // Load order details from URL parameter
+        function loadOrderDetails() {
             const urlParams = new URLSearchParams(window.location.search);
             const orderId = urlParams.get('order');
             
