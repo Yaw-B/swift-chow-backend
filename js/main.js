@@ -556,7 +556,7 @@ function renderBlogPosts(container, limit = null) {
         </div>
         <h3 class="blog-card-title">${post.title}</h3>
         <p class="blog-card-excerpt">${post.excerpt}</p>
-        <a href="blog-post-${post.id}.html" class="blog-card-link">
+        <a href="blog-post.html?id=${post.id}" class="blog-card-link">
           Read More
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -572,6 +572,136 @@ function renderBlogPreview() {
   const container = document.querySelector('.blog-preview-grid');
   if (container) {
     renderBlogPosts(container, 3);
+  }
+}
+
+function renderBlogPostPage() {
+  const params = new URLSearchParams(window.location.search);
+  const postId = parseInt(params.get('id')) || 1;
+  
+  if (typeof blogPosts === 'undefined') {
+    console.error('Blog posts data not loaded');
+    return;
+  }
+  
+  const post = blogPosts.find(p => p.id === postId);
+  if (!post) {
+    console.error('Blog post not found:', postId);
+    document.querySelector('.blog-post-container')?.innerHTML = '<p style="text-align: center; padding: 2rem;">Blog post not found.</p>';
+    return;
+  }
+  
+  const container = document.querySelector('.blog-post-container article');
+  if (!container) return;
+  
+  // Build full blog content (simulated for now)
+  let fullContent = '';
+  
+  // Create a content mapping for different posts
+  const contentMap = {
+    1: `<h2>The Origins: Hamburg, Germany</h2>
+<p>The story begins in the 19th century in the German city of Hamburg. German immigrants brought with them a dish called "Hamburg steak" – a minced beef patty seasoned with onions and spices. When these immigrants arrived in America, they brought this culinary tradition with them.</p>
+<p>By the late 1800s, American cooks had begun placing the Hamburg steak between two slices of bread for easier eating on the go. The exact inventor is disputed, but what's certain is that by 1904, the hamburger was already a popular item at the St. Louis World's Fair.</p>
+<h2>The Global Journey</h2>
+<p>Throughout the 20th century, the hamburger spread across the globe, adapted by each culture it touched:</p>
+<ul>
+<li>In Japan, it became the "hambāgu," often served with rice</li>
+<li>In Australia, they added beetroot and fried eggs</li>
+<li>In Mexico, jalapeños and salsa became standard toppings</li>
+<li>And in Ghana, we've added our own unique twist...</li>
+</ul>
+<h2>The Burger Comes to Ghana</h2>
+<p>Fast food culture began emerging in Ghana in the 1990s, but it was the 2000s that saw the real burger revolution. International chains introduced Ghanaians to the concept, but it was local entrepreneurs who made it their own.</p>
+<p>At SWIFT CHOW, we honor this tradition while embracing our Ghanaian heritage. Our Spicy Jerk Burger, for instance, combines the classic American format with Caribbean and West African spices that our customers love.</p>
+<h2>The Future of Burgers in Ghana</h2>
+<p>As we look ahead, we see exciting possibilities. More local ingredients, sustainable practices, and innovative flavor combinations. The burger's journey isn't over – it's simply entering its next chapter, and we're proud to be writing it here in Ghana.</p>`,
+    
+    2: `<h2>Why Pizza Conquered Africa</h2>
+<p>Pizza's universal appeal lies in its versatility. Unlike many foods tied to specific cuisines, pizza provides a canvas for creativity. In Africa, this adaptability has made it a favorite across diverse food cultures.</p>
+<h2>Local Innovations</h2>
+<p>From Nigerian-spiced pizzas to South African varieties, African chefs have reimagined the Italian classic. In Ghana, we've experimented with local toppings and flavors that resonate with our customers' palates.</p>
+<h2>Community and Connection</h2>
+<p>Pizza has become more than just food – it's a vehicle for social connection. Family gatherings, celebrations, and casual meetups often center around a pizza experience.</p>`,
+    
+    3: `<h2>The Streets of Accra</h2>
+<p>Accra's food scene is vibrant and diverse. From Jamestown's grilled fish to Osu's waakye stands, the city offers incredible food experiences beyond the restaurant walls.</p>
+<h2>Must-Try Street Foods</h2>
+<p><strong>1. Waakye</strong> - A traditional Ghanaian dish of rice and beans served with fried plantains and sauces.</p>
+<p><strong>2. Grilled Fish</strong> - Fresh fish seasoned and grilled over charcoal in coastal areas.</p>
+<p><strong>3. Fufu and Light Soup</strong> - A filling combination that's pure comfort food.</p>
+<p><strong>4. Kebabs</strong> - Perfectly seasoned meat skewers that are absolutely delicious.</p>
+<p><strong>5. Akple</strong> - A savory corn meal served with any type of sauce.</p>
+<h2>The Street Food Experience</h2>
+<p>Street food isn't just about eating – it's about the experience, the vendors, and the stories behind each meal.</p>`,
+    
+    4: `<h2>Our Milkshake Philosophy</h2>
+<p>At SWIFT CHOW, we believe that a great milkshake starts with quality ingredients. We use premium ice cream, fresh dairy, and carefully selected flavorings.</p>
+<h2>The Secret Ingredients</h2>
+<p>Our milkshakes contain a perfect balance of creaminess, sweetness, and flavor. The secret? We never skimp on the ice cream, and we blend each shake to order.</p>
+<h2>Popular Combinations</h2>
+<p>From classic Vanilla to adventurous Caramel, our shake menu caters to every taste. Try our seasonal specials for limited-time flavors.</p>`,
+    
+    5: `<h2>Family Dining Matters</h2>
+<p>In today's fast-paced world, family meals are more important than ever. SWIFT CHOW is designed with families in mind – comfortable spaces, kid-friendly options, and a welcoming atmosphere.</p>
+<h2>Creating Memories</h2>
+<p>Whether it's a weekend treat or a special celebration, dining together creates lasting memories. We've witnessed countless family moments in our restaurants.</p>
+<h2>Community Events</h2>
+<p>We regularly host family-friendly events and special promotions designed to bring people together.</p>`
+  };
+  
+  fullContent = contentMap[postId] || '<p>Detailed content coming soon. Check back for the full article!</p>';
+  
+  // Update the header
+  const header = container.querySelector('.blog-post-header');
+  if (header) {
+    header.innerHTML = `
+      <span class="blog-post-category">${post.category}</span>
+      <h1 class="blog-post-title">${post.title}</h1>
+      <div class="blog-post-meta">
+        <div class="blog-post-author">
+          <div class="author-avatar">${post.author.split(' ').map(n => n[0]).join('')}</div>
+          <div>
+            <strong class="blog-post-author-name">${post.author}</strong>
+          </div>
+        </div>
+        <span class="blog-post-date"><i class="far fa-calendar"></i> ${formatDate(post.date)}</span>
+        <span><i class="far fa-clock"></i> ${post.readTime}</span>
+      </div>
+    `;
+  }
+  
+  // Update the image
+  const imageDiv = container.querySelector('.blog-post-image');
+  if (imageDiv) {
+    imageDiv.innerHTML = `<img src="${post.image}" alt="${post.title}">`;
+  }
+  
+  // Update the content
+  const contentDiv = container.querySelector('.blog-post-content');
+  if (contentDiv) {
+    contentDiv.innerHTML = `<p>${post.excerpt}</p>` + fullContent;
+  }
+  
+  // Update related posts
+  const relatedContainer = container.querySelector('.blog-grid');
+  if (relatedContainer && typeof getRelatedBlogPosts === 'function') {
+    const relatedPosts = getRelatedBlogPosts(postId, 2);
+    relatedContainer.innerHTML = relatedPosts.map(relatedPost => `
+      <article class="blog-card">
+        <div class="blog-card-image">
+          <img src="${relatedPost.image}" alt="${relatedPost.title}">
+        </div>
+        <div class="blog-card-content">
+          <div class="blog-card-meta">
+            <span><i class="far fa-calendar"></i> ${formatDate(relatedPost.date)}</span>
+          </div>
+          <h3 class="blog-card-title">${relatedPost.title}</h3>
+          <a href="blog-post.html?id=${relatedPost.id}" class="blog-card-link">
+            Read More <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </article>
+    `).join('');
   }
 }
 
@@ -1666,6 +1796,10 @@ function init() {
             const blogGrid = document.querySelector('.blog-grid');
             if (blogGrid) renderBlogPosts(blogGrid);
           } catch (e) { console.warn('Blog initialization error:', e); }
+          break;
+        
+        case 'blog-post':
+          try { renderBlogPostPage(); } catch (e) { console.warn('renderBlogPostPage error:', e); }
           break;
         
         case 'contact':
