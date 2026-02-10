@@ -47,6 +47,7 @@ async function loadCart() {
 
 // Save cart (to localStorage if not logged in)
 async function saveCart() {
+  window.cart = cart; // Keep window.cart in sync
   if (isAuthenticated()) {
     try {
       await apiGetCart(); // Sync with server
