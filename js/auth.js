@@ -73,6 +73,10 @@ async function login(email, password, remember = false) {
         if (typeof updateAuthUI === 'function') {
           updateAuthUI();
         }
+        // Reload cart when user logs in
+        if (typeof loadCart === 'function') {
+          loadCart();
+        }
       }, 100);
       
       return { success: true, message: 'Login successful!', user: response.user };
@@ -143,9 +147,11 @@ async function register(fullName = '', email = '', phone = '', password = '', co
         if (typeof updateAuthUI === 'function') {
           updateAuthUI();
         }
+        // Reload cart when user signs up/logs in
+        if (typeof loadCart === 'function') {
+          loadCart();
+        }
       }, 100);
-      
-      return { success: true, message: 'Registration successful!', user: response.user };
     }
     
     console.error('register: No user data in response:', response);
@@ -196,6 +202,11 @@ async function logout() {
   // Call updateAuthUI immediately if available
   if (typeof updateAuthUI === 'function') {
     updateAuthUI();
+  }
+  
+  // Reload cart when user logs out
+  if (typeof loadCart === 'function') {
+    loadCart();
   }
   
   // Remove any old user profile elements
