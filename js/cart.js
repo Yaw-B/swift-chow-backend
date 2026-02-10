@@ -27,7 +27,7 @@ async function loadCart() {
   try {
     // Get API cart
     const response = await apiGetCart();
-    const apiCart = response.items || [];
+    const apiCart = response.cart || response.items || [];
     
     // Get localStorage cart (items added before login)
     const localCart = JSON.parse(localStorage.getItem('swiftChowCart')) || [];
@@ -99,8 +99,8 @@ async function saveCart() {
   if (isAuthenticated()) {
     try {
       const response = await apiGetCart(); // Sync with server
-      if (response && response.items) {
-        cart = response.items;
+      if (response && (response.cart || response.items)) {
+        cart = response.cart || response.items;
         window.cart = cart; // Update window.cart with latest from server
       }
     } catch (error) {
@@ -185,7 +185,7 @@ async function addToCart(productId, quantity = 1) {
           product.category,
           product.image
         );
-        cart = response.items || cart;
+        cart = response.cart || response.items || cart;
         window.cart = cart;
         console.log('Cart updated via API:', cart.length, 'items');
         saveCart();
