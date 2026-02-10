@@ -126,9 +126,13 @@ async function addToCart(productId, quantity = 1) {
         product.image
       );
       cart = response.items || cart;
+      window.cart = cart;
       console.log('Cart updated via API:', cart.length, 'items');
       saveCart();
-      showToast(`${product.name} added to cart!`, 'success');
+      showToast(product.name + ' added to cart!', 'success');
+      updateFloatingCart();
+      updateCartCount();
+      animateCartIcon();
       return true;
     } catch (error) {
       console.error('Error adding to cart via API:', error);
@@ -154,8 +158,11 @@ async function addToCart(productId, quantity = 1) {
       console.log('Added new item to cart');
     }
   
+    window.cart = cart;
     saveCart();
-    showToast(`${product.name} added to cart!`, 'success');
+    showToast(product.name + ' added to cart!', 'success');
+    updateFloatingCart();
+    updateCartCount();
     animateCartIcon();
     return true;
   }
@@ -168,8 +175,12 @@ function removeFromCart(productId) {
   if (itemIndex > -1) {
     const itemName = cart[itemIndex].name;
     cart.splice(itemIndex, 1);
+    window.cart = cart;
     saveCart();
-    showToast(`${itemName} removed from cart`, 'info');
+    showToast(itemName + ' removed from cart', 'info');
+    updateFloatingCart();
+    updateCartCount();
+    updateCartModal();
   }
 }
 
@@ -182,7 +193,11 @@ function updateQuantity(productId, newQuantity) {
       removeFromCart(productId);
     } else {
       item.quantity = newQuantity;
+      window.cart = cart;
       saveCart();
+      updateFloatingCart();
+      updateCartCount();
+      updateCartModal();
     }
   }
 }
@@ -192,7 +207,11 @@ function incrementQuantity(productId) {
   const item = cart.find(item => item.id === productId);
   if (item) {
     item.quantity += 1;
+    window.cart = cart;
     saveCart();
+    updateFloatingCart();
+    updateCartCount();
+    updateCartModal();
   }
 }
 
@@ -202,7 +221,11 @@ function decrementQuantity(productId) {
   if (item) {
     if (item.quantity > 1) {
       item.quantity -= 1;
+      window.cart = cart;
       saveCart();
+      updateFloatingCart();
+      updateCartCount();
+      updateCartModal();
     } else {
       removeFromCart(productId);
     }
