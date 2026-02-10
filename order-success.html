@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed - SWIFT CHOW</title>
+    <meta name="description" content="Your order has been confirmed! Track your delicious food delivery.">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <style>
+        .success-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .success-header {
+            margin-bottom: 2rem;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            color: var(--success);
+            margin-bottom: 1rem;
+            animation: scaleIn 0.5s ease-out;
+        }
+        
+        .success-title {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        
+        .success-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .order-details {
+            background: rgba(34, 197, 94, 0.05);
+            border-left: 4px solid var(--success);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        
+        .order-detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(34, 197, 94, 0.1);
+        }
+        
+        .order-detail-row:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .order-detail-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .order-detail-value {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .order-items-list {
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        
+        .order-items-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-name-qty {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .item-name {
+            font-weight: 500;
+        }
+        
+        .item-qty {
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .item-price {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .summary-section {
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        
+        .summary-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+        
+        .summary-row.total {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary);
+            padding-top: 1rem;
+            margin-top: 1rem;
+            border-top: 2px solid var(--border-color);
+        }
+        
+        .delivery-info {
+            background: rgba(96, 165, 250, 0.05);
+            border-left: 4px solid var(--info);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        
+        .delivery-info-title {
+            font-weight: 600;
+            color: var(--info);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .delivery-info-details {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .action-button {
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .action-button.primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .action-button.primary:hover {
+            background: #dc6b35;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .action-button.secondary {
+            background: var(--bg-secondary);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .action-button.secondary:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 640px) {
+            .success-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .success-title {
+                font-size: 1.5rem;
+            }
+            
+            .success-icon {
+                font-size: 3rem;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .order-detail-row {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body data-page="order-success">
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="grid-loader">
+            <div class="grid-box"></div>
+            <div class="grid-box"></div>
+            <div class="grid-box"></div>
+            <div class="grid-box"></div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M4 14H20" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M5 18C5 16.8954 5.89543 16 7 16H17C18.1046 16 19 16.8954 19 18C19 19.1046 18.1046 20 17 20H7C5.89543 20 5 19.1046 5 18Z" stroke="white" stroke-width="2.5"/>
+                    </svg>
+                </div>
+                <span class="logo-text">SWIFT <span>CHOW</span></span>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="menu.html">Menu</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="reviews.html">Reviews</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+            
+            <div class="nav-actions">
+                <button class="nav-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="cart.html" class="nav-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" style="display: none;">0</span>
+                </a>
+                <button id="loginBtn" class="btn btn-primary btn-sm">
+                    <i class="fas fa-user"></i> Login
+                </button>
+                <button class="mobile-menu-btn" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <ul class="mobile-nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="menu.html">Menu</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="cart.html">Cart</a></li>
+            <li><a href="#" onclick="logout()">Logout</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <section class="section">
+        <div class="container">
+            <div class="success-container">
+                <!-- Success Header -->
+                <div class="success-header">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h1 class="success-title">Order Confirmed!</h1>
+                    <p class="success-subtitle">Your delicious food is being prepared</p>
+                </div>
+
+                <!-- Order Details -->
+                <div class="order-details">
+                    <div class="order-detail-row">
+                        <span class="order-detail-label">Order ID:</span>
+                        <span class="order-detail-value" id="orderId">-</span>
+                    </div>
+                    <div class="order-detail-row">
+                        <span class="order-detail-label">Order Date:</span>
+                        <span class="order-detail-value" id="orderDate">-</span>
+                    </div>
+                    <div class="order-detail-row">
+                        <span class="order-detail-label">Estimated Delivery:</span>
+                        <span class="order-detail-value" id="estimatedDelivery">-</span>
+                    </div>
+                </div>
+
+                <!-- Order Items -->
+                <div class="order-items-list">
+                    <div class="order-items-title">Order Items</div>
+                    <div id="orderItemsList">
+                        <!-- Items will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="summary-section">
+                    <div class="summary-title">Order Summary</div>
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span id="summarySubtotal">GHS 0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Delivery Fee</span>
+                        <span id="summaryDelivery">GHS 0.00</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span id="summaryTotal">GHS 0.00</span>
+                    </div>
+                </div>
+
+                <!-- Delivery Information -->
+                <div class="delivery-info">
+                    <div class="delivery-info-title">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Delivery Address
+                    </div>
+                    <div class="delivery-info-details" id="deliveryAddress">
+                        <!-- Delivery address will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <a href="tracking.html" class="action-button primary">
+                        <i class="fas fa-tracking"></i>
+                        Track Order
+                    </a>
+                    <a href="menu.html" class="action-button secondary">
+                        <i class="fas fa-plus"></i>
+                        Order Again
+                    </a>
+                </div>
+
+                <!-- Footer Note -->
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0;">
+                    <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>
+                    You'll receive updates about your order via email and SMS
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">
+                        <div class="logo-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M4 14H20" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M5 18C5 16.8954 5.89543 16 7 16H17C18.1046 16 19 16.8954 19 18C19 19.1046 18.1046 20 17 20H7C5.89543 20 5 19.1046 5 18Z" stroke="white" stroke-width="2.5"/>
+                            </svg>
+                        </div>
+                        <span class="logo-text">SWIFT <span>CHOW</span></span>
+                    </a>
+                    <p>Ghana's favorite fast food destination. Fresh ingredients, amazing taste, and lightning-fast delivery.</p>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="reviews.html">Reviews</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="tracking.html">Track Order</a></li>
+                        <li><a href="terms.html">Terms & Conditions</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="contact.html#faq">FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Contact Us</h4>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>25 Independence Ave, Osu, Accra, Ghana</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>+233 50 507 0941</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>orders@swiftchow.com</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Mon-Sun: 8:00 AM - 10:00 PM</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2026 SWIFT CHOW. Designed by Ayensu Edwin Yaw Boadi</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        // Load order details from URL parameter
+        function loadOrderDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('order');
+            
+            if (!orderId) {
+                console.error('No order ID provided');
+                return;
+            }
+            
+            // Get order from sessionStorage (set during checkout)
+            const orderData = JSON.parse(sessionStorage.getItem('lastOrder') || '{}');
+            
+            if (!orderData || !orderData.id) {
+                console.warn('Order data not found in sessionStorage');
+                // Try to get from localStorage as fallback
+                const backup = JSON.parse(localStorage.getItem('lastOrder') || '{}');
+                if (backup && backup.id) {
+                    displayOrderDetails(backup);
+                }
+                return;
+            }
+            
+            displayOrderDetails(orderData);
+        }
+        
+        function displayOrderDetails(order) {
+            // Set order ID
+            const orderIdEl = document.getElementById('orderId');
+            if (orderIdEl) orderIdEl.textContent = order.id || '-';
+            
+            // Set order date
+            const orderDateEl = document.getElementById('orderDate');
+            if (orderDateEl && order.timestamp) {
+                const date = new Date(order.timestamp);
+                orderDateEl.textContent = date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+            
+            // Set estimated delivery
+            const estimatedEl = document.getElementById('estimatedDelivery');
+            if (estimatedEl && order.estimatedDelivery) {
+                estimatedEl.textContent = order.estimatedDelivery;
+            }
+            
+            // Display items
+            const itemsList = document.getElementById('orderItemsList');
+            if (itemsList && order.items && order.items.length > 0) {
+                itemsList.innerHTML = order.items.map(item => `
+                    <div class="order-item">
+                        <div class="item-name-qty">
+                            <span class="item-name">${item.name}</span>
+                            <span class="item-qty">x${item.quantity}</span>
+                        </div>
+                        <span class="item-price">GHS ${(item.price * item.quantity).toFixed(2)}</span>
+                    </div>
+                `).join('');
+            }
+            
+            // Display summary
+            const subtotalEl = document.getElementById('summarySubtotal');
+            const deliveryEl = document.getElementById('summaryDelivery');
+            const totalEl = document.getElementById('summaryTotal');
+            
+            if (subtotalEl) subtotalEl.textContent = `GHS ${(order.subtotal || 0).toFixed(2)}`;
+            if (deliveryEl) deliveryEl.textContent = order.deliveryFee === 0 ? 'FREE' : `GHS ${(order.deliveryFee || 0).toFixed(2)}`;
+            if (totalEl) totalEl.textContent = `GHS ${(order.total || 0).toFixed(2)}`;
+            
+            // Display delivery address
+            const addressEl = document.getElementById('deliveryAddress');
+            if (addressEl && order.customer) {
+                const addr = order.customer;
+                addressEl.innerHTML = `
+                    <div><strong>${addr.firstName} ${addr.lastName}</strong></div>
+                    <div>${addr.address}</div>
+                    <div>${addr.landmark ? addr.landmark + ', ' : ''}${addr.city}</div>
+                    <div style="margin-top: 0.75rem; border-top: 1px solid rgba(96, 165, 250, 0.2); padding-top: 0.75rem;">
+                        <div><strong>Phone:</strong> ${addr.phone}</div>
+                        <div><strong>Email:</strong> ${addr.email}</div>
+                        ${addr.notes ? `<div style="margin-top: 0.5rem;"><strong>Notes:</strong> ${addr.notes}</div>` : ''}
+                    </div>
+                `;
+            }
+        }
+        
+        // Load order details when page loads
+        document.addEventListener('DOMContentLoaded', loadOrderDetails);
+    </script>
+</body>
+</html>

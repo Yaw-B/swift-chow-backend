@@ -569,6 +569,7 @@ function processOrder(orderData) {
   orders.push(order);
   localStorage.setItem('fafoOrders', JSON.stringify(orders));
   localStorage.setItem('lastOrder', JSON.stringify(order));
+  sessionStorage.setItem('lastOrder', JSON.stringify(order)); // Also save to sessionStorage for quick access
   
   // Clear cart
   cart = [];

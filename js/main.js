@@ -1269,6 +1269,90 @@ function initCheckoutForm() {
   const form = document.querySelector('.checkout-form');
   if (!form) return;
   
+  // Auto-populate user details from currentUser
+  const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+  if (user && user.email) {
+    const firstNameInput = form.querySelector('input[name="firstName"]');
+    const lastNameInput = form.querySelector('input[name="lastName"]');
+    const emailInput = form.querySelector('input[name="email"]');
+    const phoneInput = form.querySelector('input[name="phone"]');
+    
+    if (firstNameInput && user.firstName) firstNameInput.value = user.firstName;
+    if (lastNameInput && user.lastName) lastNameInput.value = user.lastName;
+    if (emailInput && user.email) emailInput.value = user.email;
+    if (phoneInput && user.phone) phoneInput.value = user.phone;
+  }
+  
+  // Handle recipient selector
+  const deliverToMeLabel = document.querySelector('#deliverToMeLabel');
+  const deliverToOtherLabel = document.querySelector('#deliverToOtherLabel');
+  const recipientRadios = form.querySelectorAll('input[name="recipient"]');
+  
+  function updateRecipientUI() {
+    const selectedRecipient = form.querySelector('input[name="recipient"]:checked').value;
+    
+    // Reset form if switching to "myself"
+    if (selectedRecipient === 'myself' && user && user.email) {
+      const firstNameInput = form.querySelector('input[name="firstName"]');
+      const lastNameInput = form.querySelector('input[name="lastName"]');
+      const emailInput = form.querySelector('input[name="email"]');
+      const phoneInput = form.querySelector('input[name="phone"]');
+      
+      if (firstNameInput && user.firstName) firstNameInput.value = user.firstName;
+      if (lastNameInput && user.lastName) lastNameInput.value = user.lastName;
+      if (emailInput && user.email) emailInput.value = user.email;
+      if (phoneInput && user.phone) phoneInput.value = user.phone;
+    }
+    
+    // Update UI highlighting
+    if (deliverToMeLabel) {
+      if (selectedRecipient === 'myself') {
+        deliverToMeLabel.style.borderColor = 'var(--primary)';
+        deliverToMeLabel.style.background = 'rgba(255, 107, 53, 0.05)';
+      } else {
+        deliverToMeLabel.style.borderColor = 'var(--border-color)';
+        deliverToMeLabel.style.background = 'transparent';
+      }
+    }
+    
+    if (deliverToOtherLabel) {
+      if (selectedRecipient === 'other') {
+        deliverToOtherLabel.style.borderColor = 'var(--primary)';
+        deliverToOtherLabel.style.background = 'rgba(255, 107, 53, 0.05)';
+      } else {
+        deliverToOtherLabel.style.borderColor = 'var(--border-color)';
+        deliverToOtherLabel.style.background = 'transparent';
+      }
+    }
+  }
+  
+  // Set up event listeners for recipient selector
+  recipientRadios.forEach(radio => {
+    radio.addEventListener('change', updateRecipientUI);
+  });
+  
+  // Add click handlers for better UX
+  if (deliverToMeLabel) {
+    deliverToMeLabel.addEventListener('click', (e) => {
+      if (e.target !== deliverToMeLabel.querySelector('input')) {
+        deliverToMeLabel.querySelector('input').checked = true;
+        deliverToMeLabel.querySelector('input').dispatchEvent(new Event('change'));
+      }
+    });
+  }
+  
+  if (deliverToOtherLabel) {
+    deliverToOtherLabel.addEventListener('click', (e) => {
+      if (e.target !== deliverToOtherLabel.querySelector('input')) {
+        deliverToOtherLabel.querySelector('input').checked = true;
+        deliverToOtherLabel.querySelector('input').dispatchEvent(new Event('change'));
+      }
+    });
+  }
+  
+  // Initial UI update
+  updateRecipientUI();
+  
   // Load and display saved addresses
   loadSavedAddressesOnCheckout();
   
