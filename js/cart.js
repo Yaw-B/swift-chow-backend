@@ -541,6 +541,7 @@ function generateOrderId() {
 // Process order
 function processOrder(orderData) {
   const orderId = generateOrderId();
+  const orderTimestamp = new Date();
   
   const order = {
     id: orderId,
@@ -560,8 +561,12 @@ function processOrder(orderData) {
     },
     paymentMethod: orderData.paymentMethod,
     status: 'confirmed',
-    createdAt: new Date().toISOString(),
-    estimatedDelivery: calculateEstimatedDelivery(orderData.city)
+    timestamp: orderTimestamp.toISOString(),
+    createdAt: orderTimestamp.toISOString(),
+    date: orderTimestamp.toISOString(),
+    city: orderData.city,
+    estimatedDelivery: calculateEstimatedDelivery(orderData.city),
+    orderTime: orderTimestamp
   };
   
   // Save order to localStorage (in real app, this would go to server)

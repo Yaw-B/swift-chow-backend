@@ -1542,9 +1542,8 @@ function showPaymentModal(orderData) {
           <label for="momoNumber">Mobile Number *</label>
           <input type="tel" id="momoNumber" name="momoNumber" placeholder="0501234567" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-family: inherit; box-sizing: border-box;">
         </div>
-        <div class="form-group">
-          <label for="momoPin">Mobile Money PIN *</label>
-          <input type="password" id="momoPin" name="momoPin" placeholder="Enter your PIN" maxlength="4" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-family: inherit; box-sizing: border-box;">
+        <div style="background: rgba(59, 130, 246, 0.1); padding: 0.75rem; border-radius: 0.5rem; margin-top: 1rem; border-left: 4px solid #3B82F6;">
+          <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);"><i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>You will receive a payment prompt on your phone to complete the transaction.</p>
         </div>
       `;
     } else {
