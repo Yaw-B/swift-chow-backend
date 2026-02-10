@@ -2980,6 +2980,12 @@ input, textarea, select {
         padding: 0 1rem;
     }
     
+    .modal {
+        max-height: 80vh;
+        overflow-y: auto;
+        padding: 1.5rem;
+    }
+    
     .hero-text h1 {
         font-size: 1.875rem;
     }
