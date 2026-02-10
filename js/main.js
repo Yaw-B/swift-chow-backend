@@ -3277,16 +3277,9 @@ function updateFloatingCart() {
   // Update items preview
   const itemsContainer = document.querySelector('.floating-cart-items');
   if (itemsContainer && currentCart && currentCart.length > 0) {
-    itemsContainer.innerHTML = currentCart.map(item => `
-      <div style="padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; gap: 8px; align-items: center;">
-        <img src="${item.image}" alt="${item.name}" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;">
-        <div style="flex: 1; font-size: 0.85rem;">
-          <div style="font-weight: 500;">${item.name}</div>
-          <div style="color: var(--text-secondary);">x${item.quantity}</div>
-        </div>
-        <div style="font-weight: 600; white-space: nowrap;">GHS ${(item.price * item.quantity).toFixed(2)}</div>
-      </div>
-    `).join('');
+    itemsContainer.innerHTML = currentCart.map(item => {
+      return '<div style="padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; gap: 8px; align-items: center;"><img src="' + item.image + '" alt="' + item.name + '" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;"><div style="flex: 1; font-size: 0.85rem;"><div style="font-weight: 500;">' + item.name + '</div><div style="color: var(--text-secondary);">x' + item.quantity + '</div></div><div style="font-weight: 600; white-space: nowrap;">GHS ' + (item.price * item.quantity).toFixed(2) + '</div></div>';
+    }).join('');
   } else if (itemsContainer) {
     itemsContainer.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">Cart is empty</div>';
   }
@@ -3298,7 +3291,7 @@ function updateFloatingCart() {
   
   const totalEl = document.querySelector('.floating-cart-total');
   if (totalEl) {
-    totalEl.textContent = `GHS ${total.toFixed(2)}`;
+    totalEl.textContent = 'GHS ' + total.toFixed(2);
   }
 }
 
