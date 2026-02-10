@@ -2464,7 +2464,7 @@ function googleSignup() {
   const password = 'demo1234';
   const fullName = 'Google User';
   const phone = '+233 50 507 0941';
-  if (register(email, password, fullName, phone)) {
+  if (register(fullName, email, phone, password, password)) {
     const signupModal = document.getElementById('signupModal');
     closeModal(signupModal);
     setTimeout(() => updateAuthUI(), 100);
