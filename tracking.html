@@ -556,7 +556,7 @@
                     }
                 </style>
 
-                <div class="swift-tracking-container">
+                <div class="swift-tracking-container" id="trackingContainer" style="display: none;">
                     <div class="tracking-motorcycle" id="trackingMotorcycle">
                         <i class="fas fa-person-biking" style="color: #dc2626;"></i>
                     </div>
@@ -749,103 +749,9 @@
                     window.advanceOrderStep = () => tracker.nextStep();
                 </script>
                 
-                <!-- ETA Card -->
-                <div class="eta-card">
-                    <div class="eta-item">
-                        <h4>Estimated Delivery</h4>
-                        <div class="eta-value">
-                            <span class="time-large">20-30</span>
-                            <span class="time-unit">Minutes</span>
-                        </div>
-                    </div>
-                    <div class="eta-divider"></div>
-                    <div class="eta-item">
-                        <h4>Delivery Address</h4>
-                        <p><strong>123 Independence Avenue</strong></p>
-                        <p>Osu, Accra, Ghana</p>
-                    </div>
-                </div>
-                
-                <!-- Order Details -->
-                <div class="order-details-card">
-                    <h3>Order Details</h3>
-                    
-                    <div class="items-list">
-                        <div class="item-row">
-                            <div class="item-info">
-                                <h5>Cheese Burger Deluxe</h5>
-                                <p class="item-desc">With fries and drink</p>
-                            </div>
-                            <div class="item-quantity">
-                                <span class="qty">×2</span>
-                            </div>
-                            <div class="item-price">
-                                <strong>GHS 85.00</strong>
-                            </div>
-                        </div>
-                        
-                        <div class="item-row">
-                            <div class="item-info">
-                                <h5>Oreo Shake</h5>
-                                <p class="item-desc">Large size</p>
-                            </div>
-                            <div class="item-quantity">
-                                <span class="qty">×1</span>
-                            </div>
-                            <div class="item-price">
-                                <strong>GHS 35.00</strong>
-                            </div>
-                        </div>
-                        
-                        <div class="item-row">
-                            <div class="item-info">
-                                <h5>Delivery Fee</h5>
-                            </div>
-                            <div class="item-price">
-                                <strong>GHS 25.00</strong>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="order-summary">
-                        <div class="summary-row">
-                            <span>Subtotal</span>
-                            <strong>GHS 120.00</strong>
-                        </div>
-                        <div class="summary-row">
-                            <span>Delivery</span>
-                            <strong>GHS 25.00</strong>
-                        </div>
-                        <div class="summary-row total">
-                            <span>Total</span>
-                            <strong>GHS 145.00</strong>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Delivery Partner Info -->
-                <div class="driver-card">
-                    <h3>Your Delivery Partner</h3>
-                    <div class="driver-info">
-                        <div class="driver-avatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="driver-details">
-                            <h5>Kwame Asante</h5>
-                            <p class="driver-rating">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                                <span>(4.8)</span>
-                            </p>
-                            <p class="driver-vehicle">Red Motorcycle • GH-123-ABC</p>
-                        </div>
-                        <a href="tel:+233550123456" class="btn btn-primary btn-sm">
-                            <i class="fas fa-phone"></i>
-                        </a>
-                    </div>
+                <!-- Order Details - Will be populated by JavaScript -->
+                <div id="orderDetailsContainer" class="order-details-card">
+                    <!-- Dynamic order details will be rendered here -->
                 </div>
                 
             </main>
