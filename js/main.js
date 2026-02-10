@@ -566,39 +566,67 @@ function renderBlogPreview() {
 
 function renderReviews() {
   const container = document.querySelector('.reviews-grid');
-  if (!container || typeof reviews === 'undefined') return;
+  if (!container) return;
   
-  container.innerHTML = reviews.map(review => `
-    <div class="review-card animate-on-scroll">
-      <div class="review-header">
-        <div class="review-user">
-          <div class="review-avatar">${review.avatar}</div>
-          <div class="review-user-info">
-            <h4 class="review-name">${review.name}</h4>
-            <span class="review-location">${review.location}</span>
+  // Get reviews from localStorage first, then fall back to default reviews
+  let reviewsToDisplay = [];
+  const storedReviews = JSON.parse(localStorage.getItem('swiftChowReviews') || '[]');
+  
+  if (storedReviews.length > 0) {
+    reviewsToDisplay = storedReviews;
+  } else if (typeof reviews !== 'undefined') {
+    reviewsToDisplay = reviews;
+  } else {
+    reviewsToDisplay = [];
+  }
+  
+  if (reviewsToDisplay.length === 0) {
+    container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 2rem;">No reviews yet. Be the first to share your experience!</p>';
+    return;
+  }
+  
+  container.innerHTML = reviewsToDisplay.map(review => {
+    // Handle both old format (with title, location) and new format (without)
+    const rating = review.rating || 5;
+    const name = review.name || 'Anonymous';
+    const comment = review.comment || review.title || '';
+    const date = review.date || new Date().toLocaleDateString();
+    
+    return `
+      <div class="review-card animate-on-scroll">
+        <div class="review-header">
+          <div class="review-user">
+            <div class="review-avatar">${review.avatar || getInitial(name)}</div>
+            <div class="review-user-info">
+              <h4 class="review-name">${name}</h4>
+              ${review.location ? `<span class="review-location">${review.location}</span>` : ''}
+            </div>
+          </div>
+          <div class="review-rating">
+            <div class="stars-display">
+              ${renderStarRating(rating)}
+              <span class="rating-number">${rating}</span>
+            </div>
           </div>
         </div>
-        <div class="review-rating">
-          <div class="stars-display">
-            ${renderStarRating(review.rating)}
-            <span class="rating-number">${review.rating}</span>
-          </div>
+        <p class="review-comment">${comment}</p>
+        <div class="review-footer">
+          <span class="review-date">${date}</span>
+          ${review.verified ? '<span class="review-verified"><i class="fas fa-check-circle"></i> Verified Purchase</span>' : ''}
+          ${review.helpful ? `<button class="review-helpful" onclick="markHelpful(event, ${review.id})">
+            <i class="fas fa-thumbs-up"></i>
+            Helpful (${review.helpful})
+          </button>` : ''}
         </div>
       </div>
-      <h5 class="review-title">${review.title}</h5>
-      <p class="review-comment">${review.comment}</p>
-      <div class="review-footer">
-        <span class="review-date">${formatDate(review.date)}</span>
-        ${review.verified ? '<span class="review-verified"><i class="fas fa-check-circle"></i> Verified Purchase</span>' : ''}
-        <button class="review-helpful" onclick="markHelpful(event, ${review.id})">
-          <i class="fas fa-thumbs-up"></i>
-          Helpful (${review.helpful})
-        </button>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
   
   initScrollReveal();
+}
+
+function getInitial(name) {
+  return name ? name.charAt(0).toUpperCase() : 'U';
 }
 
 // Helper function to render star rating
@@ -657,7 +685,7 @@ function initStarRating() {
   const starInputs = document.querySelectorAll('.star-rating-input');
   
   starInputs.forEach(container => {
-    const stars = container.querySelectorAll('.star-input');
+    const stars = container.querySelectorAll('i');
     let selectedRating = 0;
     
     stars.forEach((star, index) => {
@@ -665,6 +693,7 @@ function initStarRating() {
         selectedRating = index + 1;
         updateStarDisplay(stars, selectedRating);
         container.dataset.rating = selectedRating;
+        console.log('Star rating selected:', selectedRating);
       });
       
       star.addEventListener('mouseenter', () => {
@@ -681,9 +710,85 @@ function initStarRating() {
 function updateStarDisplay(stars, rating) {
   stars.forEach((star, index) => {
     if (index < rating) {
-      star.classList.add('active');
+      star.classList.remove('far');
+      star.classList.add('fas');
     } else {
-      star.classList.remove('active');
+      star.classList.remove('fas');
+      star.classList.add('far');
+    }
+  });
+}
+
+function initReviewForm() {
+  const reviewForm = document.getElementById('reviewForm');
+  if (!reviewForm) return;
+  
+  reviewForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const starRating = document.querySelector('.star-rating-input');
+    const rating = starRating ? starRating.dataset.rating : 0;
+    const name = document.getElementById('reviewName')?.value || '';
+    const email = document.getElementById('reviewEmail')?.value || '';
+    const comment = document.getElementById('reviewComment')?.value || '';
+    
+    if (!rating) {
+      showAdvancedToast('Please select a rating', 'error');
+      return;
+    }
+    
+    if (!name || !email || !comment) {
+      showAdvancedToast('Please fill in all fields', 'error');
+      return;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showAdvancedToast('Please enter a valid email address', 'error');
+      return;
+    }
+    
+    try {
+      // Save review to localStorage (for demo purposes)
+      const reviews = JSON.parse(localStorage.getItem('swiftChowReviews') || '[]');
+      
+      const newReview = {
+        id: Date.now(),
+        name,
+        email,
+        rating: parseInt(rating),
+        comment,
+        date: new Date().toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        })
+      };
+      
+      reviews.unshift(newReview); // Add to beginning
+      localStorage.setItem('swiftChowReviews', JSON.stringify(reviews));
+      
+      console.log('Review submitted:', newReview);
+      showAdvancedToast('Thank you! Your review has been submitted', 'success');
+      
+      // Reset form
+      reviewForm.reset();
+      const starIcons = document.querySelectorAll('.star-rating-input i');
+      starIcons.forEach(star => {
+        star.classList.remove('fas');
+        star.classList.add('far');
+      });
+      document.querySelector('.star-rating-input').dataset.rating = '0';
+      
+      // Refresh reviews display
+      setTimeout(() => {
+        if (typeof renderReviews === 'function') {
+          renderReviews();
+        }
+      }, 500);
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      showAdvancedToast('Error submitting review. Please try again.', 'error');
     }
   });
 }
@@ -1470,6 +1575,7 @@ function init() {
         case 'reviews':
           try { renderReviews(); } catch (e) { console.warn('renderReviews error:', e); }
           try { initStarRating(); } catch (e) { console.warn('initStarRating error:', e); }
+          try { initReviewForm(); } catch (e) { console.warn('initReviewForm error:', e); }
           break;
         
         case 'blog':
@@ -1665,6 +1771,9 @@ window.showToast = showToast;
 window.logout = typeof logout !== 'undefined' ? logout : () => {};
 window.renderMenuItems = renderMenuItems;
 window.filterMenuByCategory = filterMenuByCategory;
+window.renderReviews = renderReviews;
+window.initReviewForm = initReviewForm;
+window.markHelpful = markHelpful;
 
 // ============================================
 // ADVANCED TOAST NOTIFICATION SYSTEM
@@ -2458,16 +2567,38 @@ function facebookLogin() {
   }
 }
 
-function googleSignup() {
+async function googleSignup() {
   showAdvancedToast('Google signup demo - using demo credentials', 'info');
   const email = 'demo.google@swift.com';
   const password = 'demo1234';
   const fullName = 'Google User';
   const phone = '+233 50 507 0941';
-  if (register(fullName, email, phone, password, password)) {
-    const signupModal = document.getElementById('signupModal');
-    closeModal(signupModal);
-    setTimeout(() => updateAuthUI(), 100);
+  
+  try {
+    const result = await register(fullName, email, phone, password, password);
+    if (result) {
+      const signupModal = document.getElementById('signupModal');
+      closeModal(signupModal);
+      setTimeout(() => updateAuthUI(), 100);
+    }
+  } catch (error) {
+    // If 409 (account exists), try logging in instead
+    if (error.message.includes('409')) {
+      console.log('Account exists, attempting login instead...');
+      showAdvancedToast('Account exists, logging in...', 'info');
+      try {
+        const loginResult = await login(email, password, false);
+        if (loginResult) {
+          const signupModal = document.getElementById('signupModal');
+          closeModal(signupModal);
+          setTimeout(() => updateAuthUI(), 100);
+        }
+      } catch (loginError) {
+        showAdvancedToast('Login failed: ' + loginError.message, 'error');
+      }
+    } else {
+      showAdvancedToast('Signup failed: ' + error.message, 'error');
+    }
   }
 }
 
