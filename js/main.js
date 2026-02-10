@@ -1839,6 +1839,7 @@ window.loadPayments = loadPayments;
 window.deleteAddress = deleteAddress;
 window.deletePayment = deletePayment;
 window.saveProfileChanges = saveProfileChanges;
+window.deleteUserAccount = deleteUserAccount;
 
 async function loadOrders() {
   const ordersContainer = document.getElementById('ordersContainer');
@@ -1919,10 +1920,70 @@ function initAccountFormHandlers() {
       
       saveProfileChanges(formData);
       showAdvancedToast('Profile updated successfully!', 'success');
+      updateAccountUserDisplay();
     });
     
     // Load initial profile data
     loadProfileForm();
+  }
+  
+  // Password change form handler
+  const changePasswordForm = document.getElementById('changePasswordForm');
+  if (changePasswordForm) {
+    changePasswordForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const currentPassword = changePasswordForm.querySelector('input[name="currentPassword"]')?.value;
+      const newPassword = changePasswordForm.querySelector('input[name="newPassword"]')?.value;
+      const confirmNewPassword = changePasswordForm.querySelector('input[name="confirmNewPassword"]')?.value;
+      
+      if (!currentPassword || !newPassword || !confirmNewPassword) {
+        showAdvancedToast('Please fill in all password fields', 'error');
+        return;
+      }
+      
+      if (newPassword !== confirmNewPassword) {
+        showAdvancedToast('New passwords do not match', 'error');
+        return;
+      }
+      
+      if (newPassword.length < 6) {
+        showAdvancedToast('Password must be at least 6 characters', 'error');
+        return;
+      }
+      
+      try {
+        // Validate current password
+        const user = JSON.parse(localStorage.getItem('fafoUser') || '{}');
+        // In a real app, you would validate against hashed password from API
+        // For now, we'll just update it
+        
+        user.password = newPassword; // In production, hash this!
+        localStorage.setItem('fafoUser', JSON.stringify(user));
+        
+        changePasswordForm.reset();
+        showAdvancedToast('Password changed successfully!', 'success');
+      } catch (error) {
+        showAdvancedToast('Error changing password: ' + error.message, 'error');
+      }
+    });
+  }
+  
+  // Delete account button handler
+  const deleteAccountBtn = document.querySelector('[data-action="deleteAccount"]') || 
+                          document.querySelector('button[onclick*="deleteAccount"]');
+  if (deleteAccountBtn && !deleteAccountBtn.hasListener) {
+    deleteAccountBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently deleted.');
+      if (confirmed) {
+        const finalConfirm = confirm('This will delete your account permanently. Type DELETE to confirm.');
+        if (finalConfirm === 'DELETE') {
+          deleteUserAccount();
+        }
+      }
+    });
+    deleteAccountBtn.hasListener = true;
   }
   
   // Load addresses and payments when page loads
@@ -1930,6 +1991,26 @@ function initAccountFormHandlers() {
     loadAddresses();
     loadPayments();
   }, 300);
+}
+
+// Delete user account
+async function deleteUserAccount() {
+  try {
+    const user = JSON.parse(localStorage.getItem('fafoUser') || '{}');
+    
+    // Clear all user data
+    localStorage.removeItem('fafoUser');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('swiftChowCart');
+    
+    // Redirect to home page
+    showAdvancedToast('Account deleted successfully', 'success');
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 1500);
+  } catch (error) {
+    showAdvancedToast('Error deleting account: ' + error.message, 'error');
+  }
 }
 
 // ============================================
