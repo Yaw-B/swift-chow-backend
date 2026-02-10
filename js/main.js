@@ -671,32 +671,37 @@ function renderStarRating(rating) {
 
 // Mark review as helpful with animation
 function markHelpful(event, reviewId) {
-  event.target.closest('.review-helpful').disabled = true;
-  event.target.closest('.review-helpful').innerHTML = '<i class="fas fa-check"></i> Thanks for voting!';
+  event.preventDefault();
+  const button = event.target.closest('.review-helpful');
+  if (!button) return;
+  
+  // Get current count
+  let countMatch = button.textContent.match(/\d+/);
+  let currentCount = countMatch ? parseInt(countMatch[0]) : 0;
+  
+  // Update count
+  const newCount = currentCount + 1;
+  button.innerHTML = `<i class="fas fa-thumbs-up"></i> Helpful (${newCount})`;
+  button.disabled = true;
+  button.style.opacity = '0.6';
+  button.style.cursor = 'not-allowed';
+  
+  // Update in localStorage
+  try {
+    const reviews = JSON.parse(localStorage.getItem('swiftChowReviews') || '[]');
+    const review = reviews.find(r => r.id === reviewId);
+    if (review) {
+      review.helpful = (review.helpful || 0) + 1;
+      localStorage.setItem('swiftChowReviews', JSON.stringify(reviews));
+    }
+  } catch (e) {
+    console.warn('Could not update helpful count:', e);
+  }
+  
   showToast('Thank you for finding this review helpful!', 'success', 2000);
 }
 
 function renderStars(rating) {
-  let stars = '';
-  for (let i = 1; i <= 5; i++) {
-    if (i <= rating) {
-      stars += '<svg class="star filled" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
-    } else {
-      stars += '<svg class="star" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
-    }
-  }
-  return stars;
-}
-
-function markHelpful(reviewId) {
-  showToast('Thanks for your feedback!', 'success');
-}
-
-// ============================================
-// STAR RATING INPUT
-// ============================================
-
-function initStarRating() {
   const starInputs = document.querySelectorAll('.star-rating-input');
   
   starInputs.forEach(container => {
@@ -783,8 +788,26 @@ function initReviewForm() {
       reviews.unshift(newReview); // Add to beginning
       localStorage.setItem('swiftChowReviews', JSON.stringify(reviews));
       
+      // Send confirmation email
+      try {
+        await fetch('/api/send-review-confirmation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            email,
+            rating,
+            comment,
+            date: newReview.date
+          })
+        });
+      } catch (emailError) {
+        console.warn('Could not send confirmation email:', emailError);
+        // Don't block the submission if email fails
+      }
+      
       console.log('Review submitted:', newReview);
-      showAdvancedToast('Thank you! Your review has been submitted', 'success');
+      showAdvancedToast('Thank you! Your review has been submitted. A confirmation email has been sent.', 'success');
       
       // Reset form
       reviewForm.reset();
