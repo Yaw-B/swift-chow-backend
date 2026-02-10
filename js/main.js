@@ -1640,6 +1640,9 @@ function initAccountNavigation() {
   
   if (navItems.length === 0) return;
   
+  // Update user display info
+  updateAccountUserDisplay();
+  
   navItems.forEach(item => {
     item.addEventListener('click', (e) => {
       e.preventDefault();
@@ -1669,6 +1672,31 @@ function initAccountNavigation() {
   const ordersSection = document.getElementById('orders');
   if (ordersSection) {
     loadOrders();
+  }
+}
+
+function updateAccountUserDisplay() {
+  // Get user data from localStorage or auth
+  const user = JSON.parse(localStorage.getItem('fafoUser') || 'null');
+  
+  // Update user name
+  const userNameEl = document.getElementById('userDisplayName');
+  if (userNameEl) {
+    userNameEl.textContent = user && user.fullName ? user.fullName : 'User Name';
+  }
+  
+  // Update user email
+  const userEmailEl = document.getElementById('userDisplayEmail');
+  if (userEmailEl) {
+    userEmailEl.textContent = user && user.email ? user.email : 'user@email.com';
+  }
+  
+  // Update user avatar initials
+  const userAvatarEl = document.getElementById('userAvatarInitials');
+  if (userAvatarEl && user && user.fullName) {
+    const names = user.fullName.split(' ');
+    const initials = names.map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    userAvatarEl.textContent = initials;
   }
 }
 
