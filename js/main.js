@@ -188,13 +188,20 @@ function initDealsCarousel() {
   let nextBtn = document.getElementById('dealsNext');
   let dots = document.querySelectorAll('.deals-dot');
   
+  console.log('initDealsCarousel: track element found:', !!track);
+  console.log('initDealsCarousel: prevBtn found:', !!prevBtn, 'nextBtn found:', !!nextBtn);
+  console.log('initDealsCarousel: dots count:', dots.length);
+  
   // Fallback to class selectors if IDs not found (backward compatibility or different page structure)
   if (!track) track = document.querySelector('.deals-track');
   if (!prevBtn) prevBtn = document.querySelector('.deals-prev') || document.querySelector('.carousel-btn.prev');
   if (!nextBtn) nextBtn = document.querySelector('.deals-next') || document.querySelector('.carousel-btn.next');
   if (!dots.length) dots = document.querySelectorAll('.carousel-dot');
 
-  if (!track) return;
+  if (!track) {
+    console.warn('initDealsCarousel: No track element found, aborting');
+    return;
+  }
   
   const totalDeals = 5; // Fixed number of deals in HTML or data
   
@@ -202,6 +209,7 @@ function initDealsCarousel() {
   if (prevBtn) {
     prevBtn.addEventListener('click', (e) => {
       e.preventDefault();
+      console.log('Prev button clicked');
       goToDeal(currentDealIndex - 1);
     });
   }
@@ -209,6 +217,7 @@ function initDealsCarousel() {
   if (nextBtn) {
     nextBtn.addEventListener('click', (e) => {
       e.preventDefault();
+      console.log('Next button clicked');
       goToDeal(currentDealIndex + 1);
     });
   }
@@ -217,6 +226,7 @@ function initDealsCarousel() {
   dots.forEach((dot, index) => {
     dot.addEventListener('click', (e) => {
       e.preventDefault();
+      console.log('Dot', index, 'clicked');
       goToDeal(index);
     });
   });
@@ -226,6 +236,7 @@ function initDealsCarousel() {
   track.addEventListener('touchend', handleTouchEnd, { passive: true });
   
   // Start autoplay
+  console.log('Starting carousel autoplay...');
   startCarouselAutoPlay();
   
   // Pause on hover
@@ -240,18 +251,23 @@ function goToDeal(index) {
   let track = document.getElementById('dealsTrack');
   if (!track) track = document.querySelector('.deals-track');
   
-  if (!track) return;
+  if (!track) {
+    console.warn('goToDeal: No track element found');
+    return;
+  }
   
   // Determine total slides based on children or fallback
   const totalDeals = track.children.length || 5;
+  console.log('goToDeal: Current index:', index, 'Total deals:', totalDeals);
   
   // Wrap around logic
   if (index < 0) index = totalDeals - 1;
   if (index >= totalDeals) index = 0;
-  
+
   currentDealIndex = index;
   
   // Move track
+  console.log('goToDeal: Translating track to', -index * 100 + '%');
   track.style.transform = `translateX(-${index * 100}%)`;
   
   // Update dots
@@ -269,7 +285,9 @@ function goToDeal(index) {
 
 function startCarouselAutoPlay() {
   if (carouselInterval) clearInterval(carouselInterval);
+  console.log('Carousel autoplay started');
   carouselInterval = setInterval(() => {
+    console.log('Carousel auto-advancing from index', currentDealIndex);
     goToDeal(currentDealIndex + 1);
   }, 5000);
 }
@@ -1409,11 +1427,13 @@ function init() {
     
     // Get current page
     const page = document.body.dataset.page;
+    console.log('=== Page initialization started for page:', page, '===');
     
     // Page-specific initialization - with try-catch for each
     try {
       switch (page) {
         case 'home':
+          console.log('Initializing HOME page - carousel will load');
           try { initDealsCarousel(); } catch (e) { console.warn('initDealsCarousel error:', e); }
           try { initCategories(); } catch (e) { console.warn('initCategories error:', e); }
           try { renderPopularItems(); } catch (e) { console.warn('renderPopularItems error:', e); }
@@ -2007,15 +2027,18 @@ function initModals() {
   // Login form submission
   const loginForm = document.getElementById('loginModalForm');
   if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
       const email = loginForm.querySelector('#login-email')?.value || loginForm.querySelector('input[name="email"]')?.value;
       const password = loginForm.querySelector('#login-password')?.value || loginForm.querySelector('input[name="password"]')?.value;
       const remember = loginForm.querySelector('input[name="remember"]')?.checked;
       
+      console.log('Login form submitted:', { email, password: password ? '***' : 'missing', remember });
+      
       if (email && password) {
-        const result = login(email, password, remember);
+        const result = await login(email, password, remember);
+        console.log('Login result:', result);
         
         if (result.success) {
           showAdvancedToast('Login successful! Welcome back!', 'success');
@@ -2027,15 +2050,21 @@ function initModals() {
         } else {
           showAdvancedToast(result.message || 'Login failed', 'error');
         }
+      } else {
+        console.error('Login form: Missing email or password', { email, password });
+        showAdvancedToast('Please enter email and password', 'error');
       }
     });
   }
   
   // Signup form submission
   const signupForm = document.getElementById('signupModalForm');
+  console.log('Setting up signup form handler. signupForm found:', !!signupForm);
+  
   if (signupForm) {
-    signupForm.addEventListener('submit', (e) => {
+    signupForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      console.log('Signup form submitted!');
       
       const fullName = signupForm.querySelector('#signup-fullname')?.value || signupForm.querySelector('input[name="fullName"]')?.value;
       const email = signupForm.querySelector('#signup-email')?.value || signupForm.querySelector('input[name="email"]')?.value;
@@ -2044,12 +2073,17 @@ function initModals() {
       const confirmPassword = signupForm.querySelector('#signup-confirm')?.value || signupForm.querySelector('input[name="confirmPassword"]')?.value;
       const terms = signupForm.querySelector('input[name="terms"]')?.checked;
       
+      console.log('Signup form values:', { fullName, email, phone, passwordLength: password?.length, confirmPasswordLength: confirmPassword?.length, terms });
+      
       if (!fullName || !email || !phone || !password || !confirmPassword || !terms) {
+        console.error('Signup validation failed. Missing:', { fullName: !fullName, email: !email, phone: !phone, password: !password, confirmPassword: !confirmPassword, terms: !terms });
         showAdvancedToast('Please fill in all fields and accept terms', 'error');
         return;
       }
       
-      const result = register(fullName, email, phone, password, confirmPassword);
+      console.log('Signup validation passed, calling register()...');
+      const result = await register(fullName, email, phone, password, confirmPassword);
+      console.log('Register result:', result);
       
       if (result.success) {
         showAdvancedToast('Account created! Welcome to SWIFT CHOW!', 'success');
@@ -2238,7 +2272,9 @@ function updateAuthUI() {
   const navActions = document.querySelector('.nav-actions');
   
   if (!navActions) {
-    console.log('updateAuthUI: nav-actions not found');
+    console.log('updateAuthUI: nav-actions not found, retrying in 100ms...');
+    // Retry after a brief delay in case page is still loading
+    setTimeout(() => updateAuthUI(), 100);
     return;
   }
   
@@ -2365,6 +2401,13 @@ function updateAuthUI() {
     }
   } else {
     console.log('updateAuthUI: User is NOT logged in');
+    
+    // Show login button when user is not logged in
+    const loginBtn = navActions.querySelector('#loginBtn');
+    if (loginBtn) {
+      loginBtn.style.display = 'inline-flex';
+      console.log('updateAuthUI: Login button shown');
+    }
   }
 }
 

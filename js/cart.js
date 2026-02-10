@@ -117,7 +117,14 @@ async function addToCart(productId, quantity = 1) {
   if (isAuthenticated()) {
     console.log('Adding to cart via API...');
     try {
-      const response = await apiAddToCart(productId, quantity);
+      const response = await apiAddToCart(
+        productId, 
+        quantity,
+        product.price,
+        product.name,
+        product.category,
+        product.image
+      );
       cart = response.items || cart;
       console.log('Cart updated via API:', cart.length, 'items');
       saveCart();

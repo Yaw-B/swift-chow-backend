@@ -28,7 +28,7 @@ passport.use('local', new LocalStrategy(
         return done(null, false, { message: 'Invalid password' });
       }
       
-      user.updateLastLogin();
+      await user.updateLastLogin();
       return done(null, user);
     } catch (error) {
       return done(error);
@@ -53,7 +53,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
         let user = await User.findOne({ googleId: profile.id });
         
         if (user) {
-          user.updateLastLogin();
+          await user.updateLastLogin();
           return done(null, user);
         }
         
@@ -68,7 +68,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
             locale: profile.locale
           };
           await user.save();
-          user.updateLastLogin();
+          await user.updateLastLogin();
           return done(null, user);
         }
         
@@ -115,7 +115,7 @@ if (process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET) {
         let user = await User.findOne({ facebookId: profile.id });
         
         if (user) {
-          user.updateLastLogin();
+          await user.updateLastLogin();
           return done(null, user);
         }
         
@@ -132,7 +132,7 @@ if (process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET) {
               locale: profile.locale
             };
             await user.save();
-            user.updateLastLogin();
+            await user.updateLastLogin();
             return done(null, user);
           }
         }

@@ -81,7 +81,7 @@ async function apiCall(endpoint, options = {}) {
    ============================================ */
 
 // Register new user
-async function apiRegister(email, password, firstName, lastName) {
+async function apiRegister(email, password, firstName, lastName, phone = '') {
   return apiCall('/auth/register', {
     method: 'POST',
     body: JSON.stringify({
@@ -89,22 +89,30 @@ async function apiRegister(email, password, firstName, lastName) {
       password,
       firstName: firstName || email.split('@')[0],
       lastName: lastName || '',
+      phone: phone || '',
     }),
   });
 }
 
 // Login with email and password
 async function apiLogin(email, password) {
-  const response = await apiCall('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify({ email, password }),
-  });
-  
-  if (response.token) {
-    setAuthToken(response.token);
+  try {
+    const response = await apiCall('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    
+    console.log('apiLogin success:', { email, hasToken: !!response.token, hasUser: !!response.user });
+    
+    if (response.token) {
+      setAuthToken(response.token);
+    }
+    
+    return response;
+  } catch (error) {
+    console.error('apiLogin error:', error);
+    throw error;
   }
-  
-  return response;
 }
 
 // Get current user
@@ -139,10 +147,17 @@ async function apiGetCart() {
 }
 
 // Add to cart
-async function apiAddToCart(foodId, quantity = 1) {
+async function apiAddToCart(foodId, quantity = 1, price = 0, name = '', category = '', image = '') {
   return apiCall('/cart/add', {
     method: 'POST',
-    body: JSON.stringify({ foodId, quantity }),
+    body: JSON.stringify({ 
+      foodId, 
+      quantity,
+      price,
+      name,
+      category,
+      image,
+    }),
   });
 }
 

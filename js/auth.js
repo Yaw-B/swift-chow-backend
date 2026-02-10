@@ -59,42 +59,84 @@ async function login(email, password, remember = false) {
   try {
     const response = await apiLogin(email, password);
     
-    if (response && response.user) {
+    if (response && response.user && response.token) {
+      // Save user and token
       currentUser = response.user;
-      localStorage.setItem('currentUser', JSON.stringify(currentUser));
-      console.log('User logged in:', currentUser.email);
-      return { success: true, message: 'Login successful!', user: currentUser };
+      localStorage.setItem('fafoUser', JSON.stringify(response.user));
+      localStorage.setItem('authToken', response.token);
+      
+      console.log('Auth: User logged in:', response.user.email);
+      console.log('Auth: Token saved:', response.token.substring(0, 20) + '...');
+      
+      // Update UI after short delay
+      setTimeout(() => {
+        if (typeof updateAuthUI === 'function') {
+          updateAuthUI();
+        }
+      }, 100);
+      
+      return { success: true, message: 'Login successful!', user: response.user };
     }
     
-    return { success: false, message: 'Login failed' };
+    return { success: false, message: 'Login failed: No user data returned' };
   } catch (error) {
+    console.error('Auth: Login error:', error);
     return { success: false, message: error.message || 'Login failed' };
   }
 }
 
 // Register new user
-async function register(email, password, firstName = '', lastName = '') {
+async function register(fullName = '', email = '', phone = '', password = '', confirmPassword = '') {
+  console.log('register() called with:', { fullName, email, phone, passwordLength: password?.length, confirmPasswordLength: confirmPassword?.length });
+  
   if (!email || !validateEmail(email)) {
+    console.error('register: Invalid email:', email);
     return { success: false, message: 'Please enter a valid email address' };
   }
   
   if (!password || password.length < 6) {
+    console.error('register: Invalid password length:', password?.length);
     return { success: false, message: 'Password must be at least 6 characters' };
   }
   
+  if (password !== confirmPassword) {
+    console.error('register: Passwords do not match');
+    return { success: false, message: 'Passwords do not match' };
+  }
+  
   try {
-    const response = await apiRegister(email, password, firstName, lastName);
+    // Split fullName into firstName and lastName
+    const nameParts = fullName.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
     
-    if (response && response.user) {
+    console.log('register: Calling apiRegister with:', { email, firstName, lastName, phone });
+    const response = await apiRegister(email, password, firstName, lastName, phone);
+    console.log('register: apiRegister response:', { hasUser: !!response?.user, hasToken: !!response?.token, error: response?.error });
+    
+    if (response && response.user && response.token) {
+      // Save user and token
       currentUser = response.user;
-      localStorage.setItem('currentUser', JSON.stringify(currentUser));
-      setAuthToken(response.token);
-      console.log('User registered:', currentUser.email);
-      return { success: true, message: 'Registration successful!', user: currentUser };
+      localStorage.setItem('fafoUser', JSON.stringify(response.user));
+      localStorage.setItem('authToken', response.token);
+      
+      console.log('Auth: User registered:', response.user.email);
+      console.log('Auth: Token saved:', response.token.substring(0, 20) + '...');
+      
+      // Update UI after short delay
+      setTimeout(() => {
+        if (typeof updateAuthUI === 'function') {
+          updateAuthUI();
+        }
+      }, 100);
+      
+      return { success: true, message: 'Registration successful!', user: response.user };
     }
     
-    return { success: false, message: 'Registration failed' };
+    console.error('register: No user data in response:', response);
+    return { success: false, message: 'Registration failed: No user data returned' };
   } catch (error) {
+    console.error('Auth: Register error:', error);
     return { success: false, message: error.message || 'Registration failed' };
   }
 }
