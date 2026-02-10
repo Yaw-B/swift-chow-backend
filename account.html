@@ -630,9 +630,11 @@
         if (userAvatarEl) {
             // Create initials from full name or email
             let initials = '--';
-            if (user.fullName) {
-                const names = user.fullName.split(' ');
+            if (user.fullName && user.fullName.trim()) {
+                const names = user.fullName.trim().split(' ');
                 initials = (names[0].charAt(0) + (names[1]?.charAt(0) || '')).toUpperCase();
+            } else if (user.firstName || user.lastName) {
+                initials = ((user.firstName?.charAt(0) || '') + (user.lastName?.charAt(0) || '')).toUpperCase();
             } else if (user.email) {
                 initials = user.email.charAt(0).toUpperCase();
             }

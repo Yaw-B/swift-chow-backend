@@ -60,6 +60,11 @@ async function login(email, password, remember = false) {
     const response = await apiLogin(email, password);
     
     if (response && response.user && response.token) {
+      // Ensure fullName is set
+      if (!response.user.fullName && response.user.firstName) {
+        response.user.fullName = (response.user.firstName + ' ' + (response.user.lastName || '')).trim();
+      }
+      
       // Save user and token
       currentUser = response.user;
       localStorage.setItem('currentUser', JSON.stringify(response.user));
@@ -120,6 +125,11 @@ async function register(fullName = '', email = '', phone = '', password = '', co
     console.log('register: apiRegister response:', { hasUser: !!response?.user, hasToken: !!response?.token, error: response?.error });
     
     if (response && response.user && response.token) {
+      // Ensure fullName is set
+      if (!response.user.fullName && response.user.firstName) {
+        response.user.fullName = (response.user.firstName + ' ' + (response.user.lastName || '')).trim();
+      }
+      
       // Save user and token
       currentUser = response.user;
       localStorage.setItem('currentUser', JSON.stringify(response.user));
