@@ -2748,11 +2748,14 @@ input, textarea, select {
     visibility: hidden;
     transition: all var(--transition-normal);
     backdrop-filter: blur(4px);
+    pointer-events: none;
+    overflow: hidden;
 }
 
 .modal-overlay.active {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
 }
 
 .modal {
