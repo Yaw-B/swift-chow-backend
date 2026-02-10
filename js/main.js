@@ -2300,23 +2300,32 @@ function updateAuthUI() {
       console.log('updateAuthUI: Login button hidden');
     }
     
+    // If user object is null but authenticated, use token to proceed
+    if (!user) {
+      console.log('updateAuthUI: User object is null but authenticated. Showing generic avatar.');
+      // Create a generic user object for display
+      user = { email: 'User', fullName: 'User' };
+    }
+    
     // Get user name from various possible properties (OAuth vs regular signup)
     let userName = '';
-    if (user.fullName) {
+    if (user && user.fullName) {
       userName = user.fullName;
-    } else if (user.name) {
+    } else if (user && user.name) {
       userName = user.name;
-    } else if (user.firstName && user.lastName) {
+    } else if (user && user.firstName && user.lastName) {
       userName = `${user.firstName} ${user.lastName}`;
-    } else if (user.firstName) {
+    } else if (user && user.firstName) {
       userName = user.firstName;
-    } else {
+    } else if (user && user.email) {
       userName = user.email.split('@')[0]; // fallback to email username
+    } else {
+      userName = 'User'; // final fallback
     }
     
     // Show user badge in nav-actions (same level as header)
     const userInitial = userName.charAt(0).toUpperCase();
-    const userColor = generateUserColor(user.email);
+    const userColor = generateUserColor(user && user.email ? user.email : 'user@example.com');
     
     const profileHTML = `
       <div class="user-profile">
@@ -2345,7 +2354,7 @@ function updateAuthUI() {
         ">
           <div style="padding: 1rem; border-bottom: 1px solid var(--border-color);">
             <p style="margin: 0; font-weight: 600; color: var(--text-primary);">${userName}</p>
-            <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">${user.email}</p>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">${user && user.email ? user.email : 'User'}</p>
           </div>
           <a href="account.html" style="display: block; padding: 0.75rem 1rem; color: var(--text-primary); text-decoration: none; border-bottom: 1px solid var(--border-color); transition: all 0.2s;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
             <i class="fas fa-user-circle"></i> My Account
