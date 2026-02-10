@@ -2567,52 +2567,14 @@ function facebookLogin() {
   }
 }
 
-async function googleSignup() {
-  showAdvancedToast('Google signup demo - using demo credentials', 'info');
-  const email = 'demo.google@swift.com';
-  const password = 'demo1234';
-  const fullName = 'Google User';
-  const phone = '+233 50 507 0941';
-  
-  try {
-    const result = await register(fullName, email, phone, password, password);
-    if (result) {
-      const signupModal = document.getElementById('signupModal');
-      closeModal(signupModal);
-      setTimeout(() => updateAuthUI(), 100);
-    }
-  } catch (error) {
-    // If 409 (account exists), try logging in instead
-    if (error.message.includes('409')) {
-      console.log('Account exists, attempting login instead...');
-      showAdvancedToast('Account exists, logging in...', 'info');
-      try {
-        const loginResult = await login(email, password, false);
-        if (loginResult) {
-          const signupModal = document.getElementById('signupModal');
-          closeModal(signupModal);
-          setTimeout(() => updateAuthUI(), 100);
-        }
-      } catch (loginError) {
-        showAdvancedToast('Login failed: ' + loginError.message, 'error');
-      }
-    } else {
-      showAdvancedToast('Signup failed: ' + error.message, 'error');
-    }
-  }
+function googleSignup() {
+  // Use real Google OAuth flow for signup (same as login)
+  googleSignIn();
 }
 
 function facebookSignup() {
-  showAdvancedToast('Facebook signup demo - using demo credentials', 'info');
-  const email = 'demo.facebook@swift.com';
-  const password = 'demo1234';
-  const fullName = 'Facebook User';
-  const phone = '+233 50 507 0941';
-  if (register(email, password, fullName, phone)) {
-    const signupModal = document.getElementById('signupModal');
-    closeModal(signupModal);
-    setTimeout(() => updateAuthUI(), 100);
-  }
+  // Use real Facebook OAuth flow for signup (same as login)
+  facebookSignIn();
 }
 
 function generateUserColor(email) {
