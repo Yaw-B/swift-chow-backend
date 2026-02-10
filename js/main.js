@@ -1660,9 +1660,17 @@ function initAccountNavigation() {
         targetSection.classList.add('active');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
-        // Load orders when orders section is opened
+        // Load section-specific data
         if (sectionId === 'orders') {
           loadOrders();
+        } else if (sectionId === 'profile') {
+          loadProfileForm();
+          loadAddresses();
+          loadPayments();
+        } else if (sectionId === 'addresses') {
+          loadAddresses();
+        } else if (sectionId === 'payments') {
+          loadPayments();
         }
       }
     });
@@ -1698,7 +1706,139 @@ function updateAccountUserDisplay() {
     const initials = names.map(n => n[0]).join('').substring(0, 2).toUpperCase();
     userAvatarEl.textContent = initials;
   }
+  
+  // Load profile form fields
+  loadProfileForm();
 }
+
+function loadProfileForm() {
+  const user = JSON.parse(localStorage.getItem('fafoUser') || 'null');
+  if (!user) return;
+  
+  const profileForm = document.querySelector('.profile-form');
+  if (!profileForm) return;
+  
+  // Fill in form fields from user data
+  const firstNameInput = profileForm.querySelector('input[name="firstName"]');
+  const lastNameInput = profileForm.querySelector('input[name="lastName"]');
+  const emailInput = profileForm.querySelector('input[name="email"]');
+  const phoneInput = profileForm.querySelector('input[name="phone"]');
+  const dobInput = profileForm.querySelector('input[name="dob"]');
+  const genderSelect = profileForm.querySelector('select[name="gender"]');
+  
+  if (firstNameInput && user.firstName) firstNameInput.value = user.firstName;
+  if (lastNameInput && user.lastName) lastNameInput.value = user.lastName;
+  if (emailInput && user.email) emailInput.value = user.email;
+  if (phoneInput && user.phone) phoneInput.value = user.phone;
+  if (dobInput && user.dob) dobInput.value = user.dob;
+  if (genderSelect && user.gender) genderSelect.value = user.gender;
+}
+
+function saveProfileChanges(formData) {
+  const user = JSON.parse(localStorage.getItem('fafoUser') || '{}');
+  
+  // Update user data
+  if (formData.firstName) user.firstName = formData.firstName;
+  if (formData.lastName) user.lastName = formData.lastName;
+  if (formData.phone) user.phone = formData.phone;
+  if (formData.dob) user.dob = formData.dob;
+  if (formData.gender) user.gender = formData.gender;
+  
+  // Update full name
+  user.fullName = (formData.firstName || user.firstName || '') + ' ' + (formData.lastName || user.lastName || '');
+  
+  localStorage.setItem('fafoUser', JSON.stringify(user));
+  return user;
+}
+
+function loadAddresses() {
+  const user = JSON.parse(localStorage.getItem('fafoUser') || '{}');
+  const addressesContainer = document.getElementById('addressesContainer');
+  
+  if (!addressesContainer) return;
+  
+  if (!user.addresses || user.addresses.length === 0) {
+    addressesContainer.innerHTML = `
+      <p style="text-align: center; padding: 2rem; color: var(--text-secondary); grid-column: 1/-1;">
+        <i class="fas fa-map-marker-alt" style="font-size: 2rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+        No saved addresses yet. Add one for faster checkout!
+      </p>
+    `;
+    return;
+  }
+  
+  addressesContainer.innerHTML = user.addresses.map((addr, idx) => `
+    <div class="address-card" style="padding: 1.5rem; border: 1px solid var(--border-color); border-radius: 8px;">
+      <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+        <div>
+          <h4 style="margin: 0 0 0.5rem 0; text-transform: capitalize;">${addr.type}</h4>
+          <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">${addr.street}, ${addr.city}</p>
+          <p style="margin: 0; color: var(--text-secondary); font-size: 0.85rem;">${addr.postalCode}, ${addr.country}</p>
+          ${addr.isDefault ? '<span class="badge" style="display: inline-block; margin-top: 0.5rem; background: var(--primary); color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;">Default</span>' : ''}
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-sm btn-outline" onclick="deleteAddress(${idx})" style="padding: 0.5rem 1rem;"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function deleteAddress(index) {
+  const user = JSON.parse(localStorage.getItem('fafoUser') || '{}');
+  if (user.addresses) {
+    user.addresses.splice(index, 1);
+    localStorage.setItem('fafoUser', JSON.stringify(user));
+    loadAddresses();
+    showAdvancedToast('Address deleted successfully!', 'success');
+  }
+}
+
+function loadPayments() {
+  const user = JSON.parse(localStorage.getItem('fafoUser') || '{}');
+  const paymentsContainer = document.getElementById('paymentsContainer');
+  
+  if (!paymentsContainer) return;
+  
+  if (!user.paymentMethods || user.paymentMethods.length === 0) {
+    paymentsContainer.innerHTML = `
+      <p style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+        <i class="fas fa-credit-card" style="font-size: 2rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+        No payment methods saved yet. Add one to check out faster!
+      </p>
+    `;
+    return;
+  }
+  
+  paymentsContainer.innerHTML = user.paymentMethods.map((payment, idx) => `
+    <div class="payment-card" style="padding: 1.5rem; border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h4 style="margin: 0 0 0.5rem 0;">
+          ${payment.type === 'card' ? 'Card ending in ' + payment.lastFour : payment.type === 'momo' ? payment.network + ' ' + payment.lastFour : 'Bank Account'}
+        </h4>
+        <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">${payment.cardholderName}</p>
+      </div>
+      <button class="btn btn-sm btn-outline" onclick="deletePayment(${idx})" style="padding: 0.5rem 1rem;"><i class="fas fa-trash"></i></button>
+    </div>
+  `).join('');
+}
+
+function deletePayment(index) {
+  const user = JSON.parse(localStorage.getItem('fafoUser') || '{}');
+  if (user.paymentMethods) {
+    user.paymentMethods.splice(index, 1);
+    localStorage.setItem('fafoUser', JSON.stringify(user));
+    loadPayments();
+    showAdvancedToast('Payment method deleted successfully!', 'success');
+  }
+}
+
+// Export functions globally
+window.loadAddresses = loadAddresses;
+window.loadPayments = loadPayments;
+window.deleteAddress = deleteAddress;
+window.deletePayment = deletePayment;
+window.saveProfileChanges = saveProfileChanges;
 
 async function loadOrders() {
   const ordersContainer = document.getElementById('ordersContainer');
@@ -1751,6 +1891,45 @@ async function loadOrders() {
     console.error('Error loading orders:', error);
     ordersContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-secondary);"><i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>No orders yet. Start placing orders to see them here!</p>';
   }
+}
+
+// ============================================
+// ACCOUNT PAGE FORM HANDLERS
+// ============================================
+
+function initAccountFormHandlers() {
+  // Profile form submission
+  const profileForm = document.querySelector('.profile-form') || document.getElementById('profileForm');
+  if (profileForm) {
+    profileForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const formData = {
+        firstName: profileForm.querySelector('input[name="firstName"]')?.value || '',
+        lastName: profileForm.querySelector('input[name="lastName"]')?.value || '',
+        phone: profileForm.querySelector('input[name="phone"]')?.value || '',
+        dob: profileForm.querySelector('input[name="dob"]')?.value || '',
+        gender: profileForm.querySelector('select[name="gender"]')?.value || ''
+      };
+      
+      if (!formData.firstName || !formData.lastName || !formData.phone) {
+        showAdvancedToast('Please fill in all required fields', 'error');
+        return;
+      }
+      
+      saveProfileChanges(formData);
+      showAdvancedToast('Profile updated successfully!', 'success');
+    });
+    
+    // Load initial profile data
+    loadProfileForm();
+  }
+  
+  // Load addresses and payments when page loads
+  setTimeout(() => {
+    loadAddresses();
+    loadPayments();
+  }, 300);
 }
 
 // ============================================
@@ -1837,6 +2016,12 @@ document.addEventListener('DOMContentLoaded', () => {
       initAccountNavigation();
     } catch (e) {
       console.warn('Error in initAccountNavigation:', e);
+    }
+    
+    try {
+      initAccountFormHandlers();
+    } catch (e) {
+      console.warn('Error in initAccountFormHandlers:', e);
     }
     
     try {

@@ -290,7 +290,7 @@
                                     <p class="setting-desc">Get notified when your order status changes</p>
                                 </div>
                                 <div class="toggle-switch">
-                                    <input type="checkbox" id="order-updates" checked>
+                                    <input type="checkbox" id="order-updates" name="orderUpdates" checked>
                                     <label for="order-updates"></label>
                                 </div>
                             </div>
@@ -301,7 +301,7 @@
                                     <p class="setting-desc">Receive special offers and promotions</p>
                                 </div>
                                 <div class="toggle-switch">
-                                    <input type="checkbox" id="promotions" checked>
+                                    <input type="checkbox" id="promotions" name="promotions" checked>
                                     <label for="promotions"></label>
                                 </div>
                             </div>
@@ -312,7 +312,7 @@
                                     <p class="setting-desc">Subscribe to our weekly newsletter</p>
                                 </div>
                                 <div class="toggle-switch">
-                                    <input type="checkbox" id="newsletters">
+                                    <input type="checkbox" id="newsletters" name="newsletters">
                                     <label for="newsletters"></label>
                                 </div>
                             </div>
@@ -334,7 +334,7 @@
                                     <p class="setting-desc">Add extra security to your account</p>
                                 </div>
                                 <div class="toggle-switch">
-                                    <input type="checkbox" id="2fa">
+                                    <input type="checkbox" id="2fa" name="twoFactor">
                                     <label for="2fa"></label>
                                 </div>
                             </div>
@@ -783,15 +783,15 @@
                     <form id="changePasswordForm" class="form">
                         <div class="form-group">
                             <label>Current Password</label>
-                            <input type="password" id="currentPassword" placeholder="Enter current password" required>
+                            <input type="password" id="currentPassword" name="currentPassword" placeholder="Enter current password" required>
                         </div>
                         <div class="form-group">
                             <label>New Password</label>
-                            <input type="password" id="newPassword" placeholder="Enter new password" required>
+                            <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password" required>
                         </div>
                         <div class="form-group">
                             <label>Confirm New Password</label>
-                            <input type="password" id="confirmNewPassword" placeholder="Confirm new password" required>
+                            <input type="password" id="confirmNewPassword" name="confirmNewPassword" placeholder="Confirm new password" required>
                         </div>
                         <button type="submit" class="btn btn-primary btn-block">Update Password</button>
                     </form>
