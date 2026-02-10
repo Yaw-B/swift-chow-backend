@@ -833,23 +833,30 @@
                     // Function to load and display a specific order
                     window.loadOrder = function(orderId) {
                         let order = null;
+                        console.log('loadOrder called with ID:', orderId);
                         
                         try {
                             // Check sessionStorage first
                             const lastOrder = sessionStorage.getItem('lastOrder');
+                            console.log('sessionStorage lastOrder exists:', !!lastOrder);
                             if (lastOrder) {
                                 const parsed = JSON.parse(lastOrder);
+                                console.log('sessionStorage order ID:', parsed.id);
                                 if (parsed.id === orderId) {
                                     order = parsed;
+                                    console.log('Order found in sessionStorage');
                                 }
                             }
                             
                             // Check localStorage
                             if (!order) {
                                 const allOrders = localStorage.getItem('fafoOrders');
+                                console.log('localStorage fafoOrders exists:', !!allOrders);
                                 if (allOrders) {
                                     const ordersArray = JSON.parse(allOrders);
+                                    console.log('Orders in localStorage:', ordersArray.length);
                                     order = ordersArray.find(o => o.id === orderId);
+                                    if (order) console.log('Order found in localStorage');
                                 }
                             }
                         } catch (e) {
