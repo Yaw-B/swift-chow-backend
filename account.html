@@ -88,9 +88,6 @@
                     </div>
                     <h3 class="user-name" id="userDisplayName">User Name</h3>
                     <p class="user-email" id="userDisplayEmail">user@email.com</p>
-                    <div class="user-status">
-                        <span class="status-badge">Premium Member</span>
-                    </div>
                 </div>
                 
                 <nav class="premium-nav-menu">
@@ -631,8 +628,15 @@
         if (userNameEl) userNameEl.textContent = user.fullName || 'User';
         if (userEmailEl) userEmailEl.textContent = user.email || 'user@example.com';
         if (userAvatarEl) {
-            const initial = (user.fullName || user.email || 'U').charAt(0).toUpperCase();
-            userAvatarEl.textContent = initial;
+            // Create initials from full name or email
+            let initials = '--';
+            if (user.fullName) {
+                const names = user.fullName.split(' ');
+                initials = (names[0].charAt(0) + (names[1]?.charAt(0) || '')).toUpperCase();
+            } else if (user.email) {
+                initials = user.email.charAt(0).toUpperCase();
+            }
+            userAvatarEl.textContent = initials;
         }
         
         // Populate profile form with user data
@@ -649,6 +653,50 @@
             if (emailInput) emailInput.value = user.email || '';
             if (phoneInput) phoneInput.value = user.phone || '';
         }
+        
+        // Load and display saved payment methods
+        function displayPayments() {
+            const paymentsContainer = document.getElementById('paymentsContainer');
+            if (!paymentsContainer) return;
+            
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const payments = user.paymentMethods || [];
+            
+            if (payments.length === 0) {
+                paymentsContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-secondary);"><i class="fas fa-credit-card" style="font-size: 2rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>No payment methods saved yet. Add one to check out faster!</p>';
+            } else {
+                paymentsContainer.innerHTML = payments.map((payment, index) => `
+                    <div class="payment-card" style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <i class="fas fa-credit-card" style="font-size: 2rem; color: var(--primary);"></i>
+                            <div>
+                                <div style="font-weight: 600; color: var(--text-primary);">${payment.type === 'momo' ? 'Mobile Money' : payment.type === 'bank' ? 'Bank Transfer' : 'Credit Card'}</div>
+                                <div style="color: var(--text-secondary); font-size: 0.9rem;">
+                                    ${payment.type === 'momo' ? payment.network : payment.type === 'bank' ? 'Account ending in' : 'Card ending in'} ${payment.lastFour}
+                                </div>
+                                <div style="color: var(--text-muted); font-size: 0.85rem;">Added on ${new Date(payment.addedAt).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline btn-sm" onclick="removePaymentMethod(${index})">Remove</button>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        // Remove payment method
+        window.removePaymentMethod = function(index) {
+            if (!confirm('Are you sure you want to remove this payment method?')) return;
+            
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (user.paymentMethods && user.paymentMethods[index]) {
+                user.paymentMethods.splice(index, 1);
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                displayPayments();
+                showAdvancedToast('Payment method removed', 'info');
+            }
+        };
+        
+        displayPayments();
         
         // Handle sidebar navigation
         const navItems = document.querySelectorAll('.premium-nav-menu .nav-item');
@@ -693,8 +741,9 @@
                 // Update sidebar
                 if (userNameEl) userNameEl.textContent = updatedUser.fullName;
                 if (userAvatarEl) {
-                    const initial = updatedUser.fullName.charAt(0).toUpperCase();
-                    userAvatarEl.textContent = initial;
+                    const names = updatedUser.fullName.split(' ');
+                    const initials = (names[0].charAt(0) + (names[1]?.charAt(0) || '')).toUpperCase();
+                    userAvatarEl.textContent = initials;
                 }
             });
         }
@@ -938,17 +987,17 @@
                 addedAt: new Date().toISOString()
             };
             
-            // Save to localStorage
-            let user = JSON.parse(localStorage.getItem('fafoUser') || '{}');
+            // Save to localStorage using currentUser
+            let user = JSON.parse(localStorage.getItem('currentUser') || '{}');
             if (!user.paymentMethods) user.paymentMethods = [];
             user.paymentMethods.push(formData);
-            localStorage.setItem('fafoUser', JSON.stringify(user));
+            localStorage.setItem('currentUser', JSON.stringify(user));
             
             showAdvancedToast('Payment method added successfully!', 'success');
             document.getElementById('addPaymentModal').remove();
             
             // Refresh payments display
-            if (window.loadPayments) window.loadPayments();
+            displayPayments();
         });
         
         modal.addEventListener('click', (e) => {
