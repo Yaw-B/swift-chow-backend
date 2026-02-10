@@ -1304,6 +1304,19 @@ function initCheckoutForm() {
       if (phoneInput && user.phone) phoneInput.value = user.phone;
     }
     
+    // Clear fields if switching to "other"
+    if (selectedRecipient === 'other') {
+      const firstNameInput = form.querySelector('input[name="firstName"]');
+      const lastNameInput = form.querySelector('input[name="lastName"]');
+      const emailInput = form.querySelector('input[name="email"]');
+      const phoneInput = form.querySelector('input[name="phone"]');
+      
+      if (firstNameInput) firstNameInput.value = '';
+      if (lastNameInput) lastNameInput.value = '';
+      if (emailInput) emailInput.value = '';
+      if (phoneInput) phoneInput.value = '';
+    }
+    
     // Update UI highlighting
     if (deliverToMeLabel) {
       if (selectedRecipient === 'myself') {

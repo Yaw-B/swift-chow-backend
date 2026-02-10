@@ -611,7 +611,7 @@ function initLoginForm() {
   const form = document.querySelector('.login-form');
   if (!form) return;
   
-  form.addEventListener('submit', (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     
     const email = form.querySelector('input[name="email"]').value;
@@ -629,6 +629,19 @@ function initLoginForm() {
     } else {
       showToast(result.message, 'error');
     }
+  };
+  
+  form.addEventListener('submit', handleSubmit);
+  
+  // Add Enter key support on input fields
+  const inputs = form.querySelectorAll('input[type="email"], input[type="password"]');
+  inputs.forEach(input => {
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        form.dispatchEvent(new Event('submit'));
+      }
+    });
   });
 }
 
@@ -636,7 +649,7 @@ function initSignupForm() {
   const form = document.querySelector('.signup-form');
   if (!form) return;
   
-  form.addEventListener('submit', (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     
     const userData = {
@@ -662,6 +675,19 @@ function initSignupForm() {
     } else {
       showToast(result.message, 'error');
     }
+  };
+  
+  form.addEventListener('submit', handleSubmit);
+  
+  // Add Enter key support on input fields
+  const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="password"]');
+  inputs.forEach(input => {
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        form.dispatchEvent(new Event('submit'));
+      }
+    });
   });
 }
 
