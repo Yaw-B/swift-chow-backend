@@ -658,21 +658,23 @@ function removePromoCode() {
 // INITIALIZE CART
 // ============================================
 function initCart() {
-  loadCart();
-  updateCartCount();
-  
-  // If on cart page, render cart
-  if (document.body.dataset.page === 'cart') {
-    updateCartDisplay();
-  }
-  
-  // If on checkout page, render checkout
-  if (document.body.dataset.page === 'checkout') {
-    renderCheckoutSummary();
-  }
-  
-  // Render mini cart if it exists
-  renderMiniCart();
+  loadCart().then(() => {
+    updateCartCount();
+    
+    // If on cart page, render cart
+    if (document.body.dataset.page === 'cart') {
+      updateCartDisplay();
+    }
+    
+    // If on checkout page, render checkout - AFTER loadCart completes
+    if (document.body.dataset.page === 'checkout') {
+      renderCheckoutSummary();
+      updateCheckoutTotals(); // Show totals immediately without needing city selection
+    }
+    
+    // Render mini cart if it exists
+    renderMiniCart();
+  });
 }
 
 // Initialize on page load
