@@ -62,6 +62,7 @@ async function login(email, password, remember = false) {
     if (response && response.user && response.token) {
       // Save user and token
       currentUser = response.user;
+      localStorage.setItem('currentUser', JSON.stringify(response.user));
       localStorage.setItem('fafoUser', JSON.stringify(response.user));
       localStorage.setItem('authToken', response.token);
       
@@ -121,6 +122,7 @@ async function register(fullName = '', email = '', phone = '', password = '', co
     if (response && response.user && response.token) {
       // Save user and token
       currentUser = response.user;
+      localStorage.setItem('currentUser', JSON.stringify(response.user));
       localStorage.setItem('fafoUser', JSON.stringify(response.user));
       localStorage.setItem('authToken', response.token);
       
@@ -152,10 +154,9 @@ async function register(fullName = '', email = '', phone = '', password = '', co
           loadCart();
         }
       }, 100);
+      
+      return { success: true, message: 'Registration successful!', user: response.user };
     }
-    
-    console.error('register: No user data in response:', response);
-    return { success: false, message: 'Registration failed: No user data returned' };
   } catch (error) {
     console.error('Auth: Register error:', error);
     return { success: false, message: error.message || 'Registration failed' };
@@ -723,17 +724,19 @@ function initAuth() {
   }
   
   // CRITICAL: Load user from localStorage on every page
-  const savedUser = localStorage.getItem('fafoUser');
+  const savedUser = localStorage.getItem('currentUser') || localStorage.getItem('fafoUser');
   const savedToken = localStorage.getItem('authToken');
   
   if (savedUser) {
     try {
       currentUser = JSON.parse(savedUser);
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
       console.log('Auth: User session restored:', currentUser.email);
       console.log('Auth: Token available:', !!savedToken);
     } catch (e) {
       console.error('Auth: Error parsing user data:', e);
       localStorage.removeItem('fafoUser');
+      localStorage.removeItem('currentUser');
       currentUser = null;
     }
   } else {
