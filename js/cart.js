@@ -580,3 +580,17 @@ function initCart() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', initCart);
+
+// Export cart to global scope for cross-file access
+window.cart = cart;
+window.addToCart = addToCart;
+window.removeFromCart = removeFromCart;
+window.updateQuantity = updateQuantity;
+window.updateCartDisplay = updateCartDisplay;
+window.getCart = getCart;
+window.loadCart = loadCart;
+window.saveCart = saveCart;
+window.incrementQuantity = incrementQuantity;
+window.decrementQuantity = decrementQuantity;
+window.getCartSubtotal = getCartSubtotal;
+window.getCartTotal = getCartTotal;

@@ -2740,8 +2740,9 @@ function updateCartModal() {
   const cartModal = document.getElementById('cartModal');
   if (!cartModal) return;
   
-  // Use the global cart variable from cart.js, NOT localStorage
-  const cartItems = cart || [];
+  // Use the global cart variable from cart.js, explicitly from window object
+  const cartItems = (window.cart && Array.isArray(window.cart)) ? window.cart : [];
+  console.log('updateCartModal: cartItems =', cartItems.length, 'items');
   const cartList = cartModal.querySelector('.cart-items-modal-list');
   
   if (cartItems.length === 0) {
@@ -3188,8 +3189,9 @@ function createFloatingCart() {
 
 // Update Floating Cart with items and total
 function updateFloatingCart() {
-  // Update count
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  // Update count - use window.cart explicitly
+  const currentCart = window.cart || [];
+  const totalItems = currentCart.reduce((sum, item) => sum + item.quantity, 0);
   const floatingCount = document.querySelector('.floating-cart-count');
   
   if (floatingCount) {
@@ -3199,8 +3201,8 @@ function updateFloatingCart() {
   
   // Update items preview
   const itemsContainer = document.querySelector('.floating-cart-items');
-  if (itemsContainer && cart && cart.length > 0) {
-    itemsContainer.innerHTML = cart.map(item => `
+  if (itemsContainer && currentCart && currentCart.length > 0) {
+    itemsContainer.innerHTML = currentCart.map(item => `
       <div style="padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; gap: 8px; align-items: center;">
         <img src="${item.image}" alt="${item.name}" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;">
         <div style="flex: 1; font-size: 0.85rem;">
@@ -3215,7 +3217,7 @@ function updateFloatingCart() {
   }
   
   // Update total
-  const subtotal = getCartSubtotal ? getCartSubtotal() : cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = getCartSubtotal ? getCartSubtotal() : currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const delivery = subtotal > 100 ? 0 : 15;
   const total = subtotal + delivery;
   
