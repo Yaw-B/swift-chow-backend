@@ -861,10 +861,21 @@
         document.body.appendChild(modal);
         
         const form = document.getElementById('changePasswordForm');
+        if (!form) {
+            console.error('Change password form not found');
+            return;
+        }
+        
         form.addEventListener('submit', (e) => {
             e.preventDefault();
+            const currentPassword = document.getElementById('currentPassword').value;
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = document.getElementById('confirmNewPassword').value;
+            
+            if (!currentPassword) {
+                showAdvancedToast('Please enter your current password', 'error');
+                return;
+            }
             
             if (newPassword !== confirmPassword) {
                 showAdvancedToast('Passwords do not match', 'error');
@@ -876,7 +887,11 @@
                 return;
             }
             
-            const user = JSON.parse(localStorage.getItem('currentUser')) || {};
+            // Get current user
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            // For now, we'll just update locally since backend might not have password verification
+            // In a real app, you'd call an API to verify the current password and change it
             user.password = newPassword;
             localStorage.setItem('currentUser', JSON.stringify(user));
             
