@@ -24,10 +24,54 @@ async function loadCart() {
   }
   
   try {
+    // Get API cart
     const response = await apiGetCart();
-    cart = response.items || [];
+    const apiCart = response.items || [];
+    
+    // Get localStorage cart (items added before login)
+    const localCart = JSON.parse(localStorage.getItem('swiftChowCart')) || [];
+    
+    // Merge carts: prioritize API cart but add items from localStorage that aren't in API cart
+    const mergedCart = [...apiCart];
+    for (const localItem of localCart) {
+      const existingItem = mergedCart.find(item => item.id === localItem.id);
+      if (!existingItem) {
+        // Item was added locally but not in API, add it
+        mergedCart.push(localItem);
+      }
+    }
+    
+    cart = mergedCart;
     cartLoaded = true;
-    console.log('Cart loaded from API:', cart.length, 'items');
+    
+    // Sync merged cart items to API
+    if (cart.length > 0) {
+      try {
+        // Add any items from localStorage that weren't in the API cart
+        for (const localItem of localCart) {
+          const inApiCart = apiCart.find(item => item.id === localItem.id);
+          if (!inApiCart) {
+            // Item was added locally but not in API, add it via API
+            await apiAddToCart(
+              localItem.id,
+              localItem.quantity,
+              localItem.price,
+              localItem.name,
+              localItem.category,
+              localItem.image
+            );
+            console.log('Synced local item to API:', localItem.name);
+          }
+        }
+      } catch (syncError) {
+        console.warn('Could not fully sync merged cart to API:', syncError);
+      }
+    }
+    
+    // Clear localStorage cart as it's now synced
+    localStorage.removeItem('swiftChowCart');
+    
+    console.log('Cart loaded from API with localStorage merge:', cart.length, 'items');
     updateCartDisplay();
     updateCartCount();
   } catch (error) {
