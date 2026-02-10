@@ -28,6 +28,21 @@ function toggleDarkMode() {
   }, 300);
 }
 
+function togglePasswordVisibility(inputId) {
+  const passwordInput = document.getElementById(inputId);
+  const toggleBtn = passwordInput.nextElementSibling;
+  
+  if (passwordInput.type === 'password') {
+    passwordInput.type = 'text';
+    toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+    toggleBtn.setAttribute('title', 'Hide password');
+  } else {
+    passwordInput.type = 'password';
+    toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+    toggleBtn.setAttribute('title', 'Show password');
+  }
+}
+
 function updateDarkModeIcon(theme) {
   const icons = document.querySelectorAll('.dark-mode-toggle i, .dark-mode-toggle svg');
   const toggleBtns = document.querySelectorAll('.dark-mode-toggle');
@@ -1765,6 +1780,7 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 
 // Export functions for global use
 window.toggleDarkMode = toggleDarkMode;
+window.togglePasswordVisibility = togglePasswordVisibility;
 window.addToCart = typeof addToCart !== 'undefined' ? addToCart : () => showToast('Cart not initialized', 'error');
 window.toggleWishlist = toggleWishlist;
 window.showToast = showToast;
