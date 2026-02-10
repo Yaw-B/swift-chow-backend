@@ -864,7 +864,7 @@ function initNewsletterForm() {
   const forms = document.querySelectorAll('.newsletter-form');
   
   forms.forEach(form => {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       
       const emailInput = form.querySelector('input[type="email"]');
@@ -881,14 +881,35 @@ function initNewsletterForm() {
         return;
       }
       
-      // Save to localStorage (simulated)
+      // Save to localStorage
       const subscribers = JSON.parse(localStorage.getItem('fafoNewsletter')) || [];
       if (!subscribers.includes(email)) {
         subscribers.push(email);
         localStorage.setItem('fafoNewsletter', JSON.stringify(subscribers));
       }
       
-      showToast('Thank you for subscribing!', 'success');
+      // Send confirmation email
+      try {
+        const user = JSON.parse(localStorage.getItem('fafoUser') || 'null');
+        const response = await fetch('/api/emails/newsletter-confirmation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            fullName: user?.fullName || 'Subscriber'
+          })
+        });
+        
+        if (response.ok) {
+          showToast('Thank you for subscribing! Check your email for confirmation.', 'success');
+        } else {
+          showToast('Thank you for subscribing!', 'success');
+        }
+      } catch (error) {
+        console.warn('Error sending newsletter email:', error);
+        showToast('Thank you for subscribing!', 'success');
+      }
+      
       form.reset();
     });
   });
@@ -902,7 +923,7 @@ function initContactForm() {
   const form = document.querySelector('.contact-form');
   if (!form) return;
   
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     if (!validateForm(form)) {
@@ -910,7 +931,6 @@ function initContactForm() {
       return;
     }
     
-    // Simulate form submission
     const formData = new FormData(form);
     const data = Object.fromEntries(formData);
     
@@ -923,7 +943,29 @@ function initContactForm() {
     });
     localStorage.setItem('fafoMessages', JSON.stringify(messages));
     
-    showToast('Message sent successfully! We\'ll get back to you soon.', 'success');
+    // Send confirmation email
+    try {
+      const emailResponse = await fetch('/api/emails/contact-response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: data.email,
+          fullName: data.name,
+          subject: data.subject,
+          message: data.message
+        })
+      });
+      
+      if (emailResponse.ok) {
+        showToast('Message sent successfully! We\'ll get back to you soon.', 'success');
+      } else {
+        showToast('Message received but confirmation email could not be sent.', 'info');
+      }
+    } catch (error) {
+      console.warn('Error sending email:', error);
+      showToast('Message sent successfully! We\'ll get back to you soon.', 'success');
+    }
+    
     form.reset();
   });
 }

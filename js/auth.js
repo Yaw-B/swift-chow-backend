@@ -123,6 +123,21 @@ async function register(fullName = '', email = '', phone = '', password = '', co
       console.log('Auth: User registered:', response.user.email);
       console.log('Auth: Token saved:', response.token.substring(0, 20) + '...');
       
+      // Send signup confirmation email
+      try {
+        const emailResponse = await fetch('/api/emails/signup-confirmation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: response.user.email,
+            fullName: response.user.fullName || `${firstName} ${lastName}`
+          })
+        });
+        console.log('Signup confirmation email sent:', emailResponse.ok);
+      } catch (error) {
+        console.warn('Could not send signup confirmation email:', error);
+      }
+      
       // Update UI after short delay
       setTimeout(() => {
         if (typeof updateAuthUI === 'function') {

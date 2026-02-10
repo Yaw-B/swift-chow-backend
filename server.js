@@ -10,9 +10,50 @@ const passport = require('passport');
 const session = require('express-session');
 const dotenv = require('dotenv');
 const path = require('path');
+const nodemailer = require('nodemailer');
 
 // Load environment variables
 dotenv.config();
+
+// ============================================
+// EMAIL CONFIGURATION
+// ============================================
+
+const transporter = nodemailer.createTransport({
+  service: process.env.EMAIL_SERVICE || 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER || 'your-email@gmail.com',
+    pass: process.env.EMAIL_PASSWORD || 'your-app-password'
+  }
+});
+
+// Verify transporter connection
+transporter.verify((error, success) => {
+  if (error) {
+    console.warn('Email service not configured:', error.message);
+  } else {
+    console.log('Email service ready');
+  }
+});
+
+// Email helper function
+async function sendEmail(to, subject, html) {
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || 'SWIFT CHOW <noreply@swiftchow.com>',
+      to,
+      subject,
+      html
+    };
+    
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent:', info.response);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Email sending error:', error);
+    return { success: false, error: error.message };
+  }
+}
 
 // Initialize Express app
 const app = express();
@@ -108,6 +149,177 @@ app.use('/api/addresses', require('./routes/addresses'));
 
 // Payment methods routes
 app.use('/api/payments', require('./routes/payments'));
+
+// ============================================
+// EMAIL ENDPOINTS
+// ============================================
+
+// Send signup confirmation email
+app.post('/api/emails/signup-confirmation', async (req, res) => {
+  try {
+    const { email, fullName } = req.body;
+    
+    if (!email || !fullName) {
+      return res.status(400).json({ error: 'Email and fullName required' });
+    }
+    
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #FF6B35; padding: 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
+          <h1 style="margin: 0; font-size: 28px;">Welcome to SWIFT CHOW!</h1>
+        </div>
+        <div style="padding: 30px; background: #f5f5f5;">
+          <p>Hi ${fullName},</p>
+          <p>Thank you for signing up! Your account has been created successfully.</p>
+          <p style="margin-top: 20px;">You can now:</p>
+          <ul style="color: #333;">
+            <li>Browse our restaurant menu</li>
+            <li>Place orders for delivery</li>
+            <li>Track your orders in real-time</li>
+            <li>Save your favorite addresses and payment methods</li>
+          </ul>
+          <p style="margin-top: 30px;">
+            <a href="${process.env.CLIENT_URL || 'https://swiftchow.netlify.app'}" style="background: #FF6B35; color: white; padding: 12px 30px; border-radius: 5px; text-decoration: none; display: inline-block;">Start Ordering Now</a>
+          </p>
+          <p style="margin-top: 30px; font-size: 12px; color: #666;">
+            If you did not create this account, please contact us immediately.
+          </p>
+        </div>
+        <div style="background: #333; color: #fff; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px;">
+          <p>© 2026 SWIFT CHOW. All rights reserved.</p>
+        </div>
+      </div>
+    `;
+    
+    const result = await sendEmail(email, 'Welcome to SWIFT CHOW!', html);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Send password reset confirmation
+app.post('/api/emails/password-reset', async (req, res) => {
+  try {
+    const { email, fullName, resetLink } = req.body;
+    
+    if (!email || !fullName) {
+      return res.status(400).json({ error: 'Email and fullName required' });
+    }
+    
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #FF6B35; padding: 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
+          <h1 style="margin: 0; font-size: 28px;">Password Reset Request</h1>
+        </div>
+        <div style="padding: 30px; background: #f5f5f5;">
+          <p>Hi ${fullName},</p>
+          <p>You requested to reset your password. Click the button below to set a new password:</p>
+          <p style="margin-top: 30px; text-align: center;">
+            <a href="${resetLink || process.env.CLIENT_URL}" style="background: #FF6B35; color: white; padding: 12px 30px; border-radius: 5px; text-decoration: none; display: inline-block;">Reset Password</a>
+          </p>
+          <p style="margin-top: 20px; font-size: 12px; color: #666;">
+            If you did not request a password reset, please ignore this email or contact support.
+          </p>
+          <p style="font-size: 12px; color: #666;">
+            This link will expire in 24 hours.
+          </p>
+        </div>
+        <div style="background: #333; color: #fff; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px;">
+          <p>© 2026 SWIFT CHOW. All rights reserved.</p>
+        </div>
+      </div>
+    `;
+    
+    const result = await sendEmail(email, 'Password Reset Request - SWIFT CHOW', html);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Send newsletter subscription confirmation
+app.post('/api/emails/newsletter-confirmation', async (req, res) => {
+  try {
+    const { email, fullName } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email required' });
+    }
+    
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #FF6B35; padding: 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
+          <h1 style="margin: 0; font-size: 28px;">Newsletter Subscription Confirmed!</h1>
+        </div>
+        <div style="padding: 30px; background: #f5f5f5;">
+          <p>${fullName ? `Hi ${fullName},` : 'Hello,'}</p>
+          <p>Thank you for subscribing to the SWIFT CHOW newsletter!</p>
+          <p>You will now receive:</p>
+          <ul style="color: #333;">
+            <li>Exclusive restaurant recommendations</li>
+            <li>Special promotional offers</li>
+            <li>New menu launches</li>
+            <li>Tips and food guides</li>
+          </ul>
+          <p style="margin-top: 30px; font-size: 12px; color: #666;">
+            You can manage your subscription preferences in your account settings anytime.
+          </p>
+        </div>
+        <div style="background: #333; color: #fff; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px;">
+          <p>© 2026 SWIFT CHOW. All rights reserved.</p>
+        </div>
+      </div>
+    `;
+    
+    const result = await sendEmail(email, 'Newsletter Subscription Confirmed', html);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Send contact form response
+app.post('/api/emails/contact-response', async (req, res) => {
+  try {
+    const { email, fullName, subject, message } = req.body;
+    
+    if (!email || !subject) {
+      return res.status(400).json({ error: 'Email and subject required' });
+    }
+    
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #FF6B35; padding: 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
+          <h1 style="margin: 0; font-size: 28px;">We Received Your Message</h1>
+        </div>
+        <div style="padding: 30px; background: #f5f5f5;">
+          <p>${fullName ? `Hi ${fullName},` : 'Hello,'}</p>
+          <p>Thank you for contacting SWIFT CHOW!</p>
+          <p><strong>Message Subject:</strong> ${subject}</p>
+          <p style="margin-top: 20px; padding: 15px; background: white; border-left: 4px solid #FF6B35; border-radius: 3px;">
+            <strong>Your message:</strong><br>
+            ${message}
+          </p>
+          <p style="margin-top: 30px;">
+            Our team will review your message and get back to you as soon as possible, usually within 24 hours.
+          </p>
+          <p style="margin-top: 30px; font-size: 12px; color: #666;">
+            Thank you for being part of the SWIFT CHOW family!
+          </p>
+        </div>
+        <div style="background: #333; color: #fff; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px;">
+          <p>© 2026 SWIFT CHOW. All rights reserved. | contact@swiftchow.com | +233 50 507 0941</p>
+        </div>
+      </div>
+    `;
+    
+    const result = await sendEmail(email, `Re: ${subject}`, html);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Health check
 app.get('/api/health', (req, res) => {
