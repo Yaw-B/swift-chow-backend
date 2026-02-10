@@ -743,6 +743,9 @@ function initReviewForm() {
   const reviewForm = document.getElementById('reviewForm');
   if (!reviewForm) return;
   
+  // Initialize star rating input
+  renderStars(0);
+  
   reviewForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
