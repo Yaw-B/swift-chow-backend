@@ -1846,6 +1846,9 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 window.toggleDarkMode = toggleDarkMode;
 window.togglePasswordVisibility = togglePasswordVisibility;
 window.loadOrders = loadOrders;
+window.handleNewsletterSubmit = handleNewsletterSubmit;
+window.scrollBlogLeft = scrollBlogLeft;
+window.scrollBlogRight = scrollBlogRight;
 window.addToCart = typeof addToCart !== 'undefined' ? addToCart : () => showToast('Cart not initialized', 'error');
 window.toggleWishlist = toggleWishlist;
 window.showToast = showToast;
@@ -2712,6 +2715,39 @@ document.addEventListener('click', (e) => {
 // ============================================
 // ENHANCED INITIALIZATION
 // ============================================
+
+// ============================================
+// NEWSLETTER & BLOG FUNCTIONS
+// ============================================
+
+function handleNewsletterSubmit(event) {
+  event.preventDefault();
+  const form = event.target;
+  const email = form.querySelector('input[type="email"]').value;
+  
+  if (!email || !email.includes('@')) {
+    showAdvancedToast('Please enter a valid email address', 'error');
+    return;
+  }
+  
+  console.log('Newsletter signup:', email);
+  showAdvancedToast('Thank you for subscribing! Check your email for confirmation.', 'success');
+  form.reset();
+}
+
+function scrollBlogLeft() {
+  const blogGrid = document.querySelector('.blog-grid');
+  if (blogGrid) {
+    blogGrid.scrollBy({ left: -300, behavior: 'smooth' });
+  }
+}
+
+function scrollBlogRight() {
+  const blogGrid = document.querySelector('.blog-grid');
+  if (blogGrid) {
+    blogGrid.scrollBy({ left: 300, behavior: 'smooth' });
+  }
+}
 
 function initEnhancements() {
   initScrollAnimations();

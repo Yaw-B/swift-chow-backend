@@ -121,7 +121,7 @@
                     <form class="track-order-form">
                         <div class="form-group">
                             <label>Order ID</label>
-                            <input type="text" placeholder="e.g., SWIFT-ABC123" value="SWIFT-ABC123">
+                            <input type="text" placeholder="e.g., SWIFT-ABC123" required>
                         </div>
                         <button type="submit" class="btn btn-primary btn-full">
                             <i class="fas fa-search"></i> Search
@@ -131,21 +131,8 @@
                 
                 <div class="tracking-info-card">
                     <h4><i class="fas fa-info-circle"></i> Order Summary</h4>
-                    <div class="summary-item">
-                        <span>Order ID:</span>
-                        <strong>SWIFT-ABC123</strong>
-                    </div>
-                    <div class="summary-item">
-                        <span>Order Date:</span>
-                        <strong>Feb 8, 2026</strong>
-                    </div>
-                    <div class="summary-item">
-                        <span>Total Amount:</span>
-                        <strong>GHS 145.00</strong>
-                    </div>
-                    <div class="summary-item">
-                        <span>Delivery Type:</span>
-                        <strong>Standard</strong>
+                    <div id="orderSummary" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                        <p>Enter an order ID and search to view details</p>
                     </div>
                 </div>
                 
@@ -168,9 +155,9 @@
                 <div class="tracking-status-header">
                     <div>
                         <h2>Track Your Order</h2>
-                        <p class="order-reference">Order #SWIFT-ABC123</p>
+                        <p class="order-reference" id="orderRefDisplay">Enter an order ID to start tracking</p>
                     </div>
-                    <div class="status-badge in-progress">
+                    <div class="status-badge in-progress" id="statusBadge" style="display: none;">
                         <i class="fas fa-spinner"></i> In Progress
                     </div>
                 </div>
