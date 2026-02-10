@@ -606,7 +606,7 @@ function renderBlogPostPage() {
   } else if (postId === 2) {
     fullContent = '<h2>Why Pizza Conquered Africa</h2><p>Pizza appeal lies in its versatility and adaptability. In Africa, it has become a favorite across diverse food cultures.</p><h2>Local Innovations</h2><p>From Nigerian-spiced pizzas to South African varieties, African chefs have reimagined the Italian classic with local toppings.</p>';
   } else if (postId === 3) {
-    fullContent = '<h2>The Streets of Accra</h2><p>Accra food scene offers incredible experiences. From Jamestown grilled fish to Osu waakye stands, the city's streets are alive with amazing food.</p><h2>Must-Try Street Foods</h2><p>Waakye, Grilled Fish, Fufu and Light Soup, Kebabs, and Akple are essential Accra experiences that represent local food culture.</p>';
+    fullContent = '<h2>The Streets of Accra</h2><p>Accra food scene offers incredible experiences. From Jamestown grilled fish to Osu waakye stands, the city has amazing food.</p><h2>Must-Try Street Foods</h2><p>Waakye, Grilled Fish, Fufu and Light Soup, Kebabs, and Akple are essential Accra experiences that represent local food culture.</p>';
   } else if (postId === 4) {
     fullContent = '<h2>Our Milkshake Philosophy</h2><p>At SWIFT CHOW, we believe great milkshakes start with quality ingredients - premium ice cream, fresh dairy, and carefully selected flavorings blended fresh to order.</p><h2>Popular Combinations</h2><p>From classic Vanilla to adventurous Caramel, our shake menu caters to every taste with seasonal specials for limited-time flavors.</p>';
   } else if (postId === 5) {
@@ -618,54 +618,28 @@ function renderBlogPostPage() {
   // Update the header
   const header = container.querySelector('.blog-post-header');
   if (header) {
-    header.innerHTML = `
-      <span class="blog-post-category">${post.category}</span>
-      <h1 class="blog-post-title">${post.title}</h1>
-      <div class="blog-post-meta">
-        <div class="blog-post-author">
-          <div class="author-avatar">${post.author.split(' ').map(n => n[0]).join('')}</div>
-          <div>
-            <strong class="blog-post-author-name">${post.author}</strong>
-          </div>
-        </div>
-        <span class="blog-post-date"><i class="far fa-calendar"></i> ${formatDate(post.date)}</span>
-        <span><i class="far fa-clock"></i> ${post.readTime}</span>
-      </div>
-    `;
+    header.innerHTML = '<span class="blog-post-category">' + post.category + '</span><h1 class="blog-post-title">' + post.title + '</h1><div class="blog-post-meta"><div class="blog-post-author"><div class="author-avatar">' + post.author.split(' ').map(n => n[0]).join('') + '</div><div><strong class="blog-post-author-name">' + post.author + '</strong></div></div><span class="blog-post-date"><i class="far fa-calendar"></i> ' + formatDate(post.date) + '</span><span><i class="far fa-clock"></i> ' + post.readTime + '</span></div>';
   }
   
   // Update the image
   const imageDiv = container.querySelector('.blog-post-image');
   if (imageDiv) {
-    imageDiv.innerHTML = `<img src="${post.image}" alt="${post.title}">`;
+    imageDiv.innerHTML = '<img src="' + post.image + '" alt="' + post.title + '">';
   }
   
   // Update the content
   const contentDiv = container.querySelector('.blog-post-content');
   if (contentDiv) {
-    contentDiv.innerHTML = `<p>${post.excerpt}</p>` + fullContent;
+    contentDiv.innerHTML = '<p>' + post.excerpt + '</p>' + fullContent;
   }
   
   // Update related posts
   const relatedContainer = container.querySelector('.blog-grid');
   if (relatedContainer && typeof getRelatedBlogPosts === 'function') {
     const relatedPosts = getRelatedBlogPosts(postId, 2);
-    relatedContainer.innerHTML = relatedPosts.map(relatedPost => `
-      <article class="blog-card">
-        <div class="blog-card-image">
-          <img src="${relatedPost.image}" alt="${relatedPost.title}">
-        </div>
-        <div class="blog-card-content">
-          <div class="blog-card-meta">
-            <span><i class="far fa-calendar"></i> ${formatDate(relatedPost.date)}</span>
-          </div>
-          <h3 class="blog-card-title">${relatedPost.title}</h3>
-          <a href="blog-post.html?id=${relatedPost.id}" class="blog-card-link">
-            Read More <i class="fas fa-arrow-right"></i>
-          </a>
-        </div>
-      </article>
-    `).join('');
+    relatedContainer.innerHTML = relatedPosts.map(relatedPost => {
+      return '<article class="blog-card"><div class="blog-card-image"><img src="' + relatedPost.image + '" alt="' + relatedPost.title + '"></div><div class="blog-card-content"><div class="blog-card-meta"><span><i class="far fa-calendar"></i> ' + formatDate(relatedPost.date) + '</span></div><h3 class="blog-card-title">' + relatedPost.title + '</h3><a href="blog-post.html?id=' + relatedPost.id + '" class="blog-card-link">Read More <i class="fas fa-arrow-right"></i></a></div></article>';
+    }).join('');
   }
 }
 
