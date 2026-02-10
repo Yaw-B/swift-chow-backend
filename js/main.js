@@ -1477,11 +1477,15 @@ function initCheckoutForm() {
       savePaymentMethod(paymentToSave);
     }
     
-    // Process order
-    const order = processOrder(orderData);
-    
-    // Redirect to success page
-    window.location.href = `order-success.html?order=${order.id}`;
+    // Handle different payment methods
+    if (selectedPaymentMethod === 'cod') {
+      // Pay on Delivery - process immediately
+      const order = processOrder(orderData);
+      window.location.href = `order-success.html?order=${order.id}`;
+    } else if (selectedPaymentMethod === 'momo' || selectedPaymentMethod === 'card') {
+      // Mobile Money or Card - show payment modal
+      showPaymentModal(orderData);
+    }
   });
 }
 
@@ -1489,6 +1493,135 @@ function getDeliveryFee(city) {
   if (typeof ghanaCities === 'undefined') return 15;
   const cityData = ghanaCities.find(c => c.name === city);
   return cityData ? cityData.deliveryFee : 15;
+}
+
+// Payment Modal Handler
+function showPaymentModal(orderData) {
+  const paymentType = orderData.paymentMethod === 'momo' ? 'Mobile Money' : 'Card';
+  
+  const modal = document.createElement('div');
+  modal.id = 'paymentModal';
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 1rem;
+  `;
+  
+  const modalContent = document.createElement('div');
+  modalContent.style.cssText = `
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+  `;
+  
+  const getPaymentFields = () => {
+    if (orderData.paymentMethod === 'momo') {
+      return `
+        <div class="form-group">
+          <label for="momoProvider">Provider *</label>
+          <select id="momoProvider" name="momoProvider" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-family: inherit;">
+            <option value="">Select Provider</option>
+            <option value="mtn">MTN Mobile Money</option>
+            <option value="vodafone">Vodafone Cash</option>
+            <option value="airteltigo">AirtelTigo Money</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="momoNumber">Mobile Number *</label>
+          <input type="tel" id="momoNumber" name="momoNumber" placeholder="0501234567" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-family: inherit; box-sizing: border-box;">
+        </div>
+        <div class="form-group">
+          <label for="momoPin">Mobile Money PIN *</label>
+          <input type="password" id="momoPin" name="momoPin" placeholder="Enter your PIN" maxlength="4" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-family: inherit; box-sizing: border-box;">
+        </div>
+      `;
+    } else {
+      return `
+        <div class="form-group">
+          <label for="cardName">Cardholder Name *</label>
+          <input type="text" id="cardName" name="cardName" placeholder="Full name on card" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-family: inherit; box-sizing: border-box;">
+        </div>
+        <div class="form-group">
+          <label for="cardNumber">Card Number *</label>
+          <input type="text" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-family: inherit; box-sizing: border-box;">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="cardExpiry">Expiry Date *</label>
+            <input type="text" id="cardExpiry" name="cardExpiry" placeholder="MM/YY" maxlength="5" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-family: inherit; box-sizing: border-box;">
+          </div>
+          <div class="form-group">
+            <label for="cardCVV">CVV *</label>
+            <input type="text" id="cardCVV" name="cardCVV" placeholder="123" maxlength="3" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-family: inherit; box-sizing: border-box;">
+          </div>
+        </div>
+      `;
+    }
+  };
+  
+  modalContent.innerHTML = `
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+      <h2 style="margin: 0; font-size: 1.5rem; color: var(--text-primary);"><i class="fas fa-${orderData.paymentMethod === 'momo' ? 'mobile-alt' : 'credit-card'}"></i> ${paymentType} Payment</h2>
+      <button onclick="document.getElementById('paymentModal').remove()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary);">&times;</button>
+    </div>
+    
+    <div style="background: rgba(220, 38, 38, 0.05); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border-left: 4px solid var(--primary);">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+        <span style="color: var(--text-secondary);">Total Amount:</span>
+        <span style="font-weight: 700; font-size: 1.1rem; color: var(--primary);">GHS ${parseFloat(orderData.deliveryFee || 0).toFixed(2)}</span>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span style="color: var(--text-secondary);">Delivery Location:</span>
+        <span style="font-weight: 600;">${orderData.city}</span>
+      </div>
+    </div>
+    
+    <form id="paymentForm" style="display: flex; flex-direction: column; gap: 1rem;">
+      ${getPaymentFields()}
+      <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <button type="button" onclick="document.getElementById('paymentModal').remove()" class="btn btn-outline" style="flex: 1;">Cancel</button>
+        <button type="submit" class="btn btn-primary" style="flex: 1;">Confirm Payment</button>
+      </div>
+    </form>
+  `;
+  
+  modal.appendChild(modalContent);
+  document.body.appendChild(modal);
+  
+  // Handle form submission
+  document.getElementById('paymentForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    // Show processing message
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Processing...';
+    
+    // Simulate payment processing
+    setTimeout(() => {
+      // In a real app, you would process the payment with a payment gateway here
+      const order = processOrder(orderData);
+      document.getElementById('paymentModal').remove();
+      
+      showToast('Payment successful! Order confirmed.', 'success');
+      setTimeout(() => {
+        window.location.href = `order-success.html?order=${order.id}`;
+      }, 1000);
+    }, 2000);
+  });
 }
 
 // ============================================
