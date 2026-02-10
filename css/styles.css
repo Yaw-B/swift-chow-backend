@@ -2414,6 +2414,7 @@ input, textarea, select {
 
 .form-group {
     margin-bottom: 1rem;
+    position: relative;
 }
 
 .form-group.full-width {
@@ -2439,6 +2440,32 @@ input, textarea, select {
     color: var(--text-primary);
     font-size: 1rem;
     transition: all var(--transition-fast);
+}
+
+/* Password input with toggle button */
+.form-group input[type="password"],
+.form-group input[type="text"].password-field {
+    padding-right: 2.75rem;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 0.75rem;
+    top: 2.25rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--transition-fast);
+    font-size: 1.1rem;
+}
+
+.password-toggle-btn:hover {
+    color: var(--primary);
 }
 
 .form-group input:focus,
@@ -2833,6 +2860,21 @@ input, textarea, select {
 }
 
 @media (max-width: 768px) {
+    .logo {
+        font-size: 1rem;
+        gap: 0.3rem;
+    }
+    
+    .logo-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+    
+    .logo-text {
+        font-size: 0.8rem;
+    }
+    
     .nav-links {
         display: none;
     }
