@@ -149,75 +149,96 @@ function updateCartCount() {
 
 // Add item to cart
 async function addToCart(productId, quantity = 1) {
-  console.log('addToCart called - productId:', productId, 'quantity:', quantity);
-  console.log('foodItems type:', typeof foodItems, 'length:', foodItems ? foodItems.length : 'undefined');
-  console.log('cart state:', cart.length, 'items, cartLoaded:', cartLoaded);
-  
-  if (!cartLoaded) {
-    console.warn('Cart not loaded yet, attempting to load...');
-    await loadCart();
-  }
-  
-  const product = foodItems.find(item => item.id === productId);
-  if (!product) {
-    console.error('Product not found - productId:', productId);
-    showToast('Product not found', 'error');
-    return false;
-  }
-  
-  console.log('Product found:', product.name);
-  
-  if (isAuthenticated()) {
-    console.log('Adding to cart via API...');
-    try {
-      const response = await apiAddToCart(
-        productId, 
-        quantity,
-        product.price,
-        product.name,
-        product.category,
-        product.image
-      );
-      cart = response.items || cart;
-      window.cart = cart;
-      console.log('Cart updated via API:', cart.length, 'items');
-      saveCart();
-      showToast(product.name + ' added to cart!', 'success');
-      updateFloatingCart();
-      updateCartCount();
-      animateCartIcon();
-      return true;
-    } catch (error) {
-      console.error('Error adding to cart via API:', error);
-      showToast('Error adding to cart', 'error');
+  try {
+    // Ensure productId is a number
+    productId = parseInt(productId, 10);
+    quantity = parseInt(quantity, 10);
+    
+    console.log('addToCart called - productId:', productId, 'quantity:', quantity);
+    console.log('foodItems type:', typeof foodItems, 'length:', foodItems ? foodItems.length : 'undefined');
+    console.log('cart state:', cart.length, 'items, cartLoaded:', cartLoaded);
+    
+    if (!cartLoaded) {
+      console.warn('Cart not loaded yet, attempting to load...');
+      await loadCart();
+    }
+    
+    const product = foodItems.find(item => item.id === productId);
+    if (!product) {
+      console.error('Product not found - productId:', productId);
+      if (typeof showToast === 'function') {
+        showToast('Product not found', 'error');
+      }
       return false;
     }
-  } else {
-    console.log('Adding to cart via localStorage...');
-    const existingItem = cart.find(item => item.id === productId);
-  
-    if (existingItem) {
-      existingItem.quantity += quantity;
-      console.log('Updated existing item quantity:', existingItem.quantity);
+    
+    console.log('Product found:', product.name);
+    
+    if (isAuthenticated()) {
+      console.log('Adding to cart via API...');
+      try {
+        const response = await apiAddToCart(
+          productId, 
+          quantity,
+          product.price,
+          product.name,
+          product.category,
+          product.image
+        );
+        cart = response.items || cart;
+        window.cart = cart;
+        console.log('Cart updated via API:', cart.length, 'items');
+        saveCart();
+        if (typeof showToast === 'function') {
+          showToast(product.name + ' added to cart!', 'success');
+        }
+        updateFloatingCart();
+        updateCartCount();
+        if (typeof animateCartIcon === 'function') {
+          animateCartIcon();
+        }
+        return true;
+      } catch (error) {
+        console.error('Error adding to cart via API:', error);
+        if (typeof showToast === 'function') {
+          showToast('Error adding to cart', 'error');
+        }
+        return false;
+      }
     } else {
-      cart.push({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        category: product.category,
-        quantity: quantity
-      });
-      console.log('Added new item to cart');
+      console.log('Adding to cart via localStorage...');
+      const existingItem = cart.find(item => item.id === productId);
+    
+      if (existingItem) {
+        existingItem.quantity += quantity;
+        console.log('Updated existing item quantity:', existingItem.quantity);
+      } else {
+        cart.push({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          category: product.category,
+          quantity: quantity
+        });
+        console.log('Added new item to cart');
+      }
+    
+      window.cart = cart;
+      saveCart();
+      if (typeof showToast === 'function') {
+        showToast(product.name + ' added to cart!', 'success');
+      }
+      updateFloatingCart();
+      updateCartCount();
+      if (typeof animateCartIcon === 'function') {
+        animateCartIcon();
+      }
+      return true;
     }
-  
-    window.cart = cart;
-    saveCart();
-    showToast(product.name + ' added to cart!', 'success');
-    updateFloatingCart();
-    updateCartCount();
-    animateCartIcon();
-    return true;
+  } catch (error) {
+    console.error('CRITICAL ERROR in addToCart:', error);
+    return false;
   }
 }
 
