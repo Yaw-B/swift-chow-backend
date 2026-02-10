@@ -223,50 +223,11 @@
                         <p>View and manage your order history</p>
                     </div>
                     
-                    <div class="orders-list">
-                        <div class="order-card">
-                            <div class="order-card-header">
-                                <div>
-                                    <h4>Order #SWIFT-001</h4>
-                                    <p class="order-date">February 5, 2026</p>
-                                </div>
-                                <span class="order-status completed">Delivered</span>
-                            </div>
-                            <div class="order-card-body">
-                                <p><strong>Items:</strong> Deluxe Burger, French Fries, Cola</p>
-                                <p><strong>Total:</strong> GHS 125.50</p>
-                            </div>
-                            <div class="order-card-actions">
-                                <a href="tracking.html" class="btn btn-sm btn-outline">
-                                    <i class="fas fa-map-marker-alt"></i> Track
-                                </a>
-                                <button class="btn btn-sm btn-outline">
-                                    <i class="fas fa-redo"></i> Reorder
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="order-card">
-                            <div class="order-card-header">
-                                <div>
-                                    <h4>Order #SWIFT-002</h4>
-                                    <p class="order-date">February 3, 2026</p>
-                                </div>
-                                <span class="order-status pending">Pending</span>
-                            </div>
-                            <div class="order-card-body">
-                                <p><strong>Items:</strong> Spicy Pizza, Garlic Bread</p>
-                                <p><strong>Total:</strong> GHS 95.00</p>
-                            </div>
-                            <div class="order-card-actions">
-                                <a href="tracking.html" class="btn btn-sm btn-outline">
-                                    <i class="fas fa-map-marker-alt"></i> Track
-                                </a>
-                                <button class="btn btn-sm btn-outline">
-                                    <i class="fas fa-redo"></i> Reorder
-                                </button>
-                            </div>
-                        </div>
+                    <div class="orders-list" id="ordersContainer">
+                        <p style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                            <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                            No orders yet. Start placing orders to see them here!
+                        </p>
                     </div>
                 </div>
                 

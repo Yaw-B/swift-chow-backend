@@ -1656,9 +1656,73 @@ function initAccountNavigation() {
       if (targetSection) {
         targetSection.classList.add('active');
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Load orders when orders section is opened
+        if (sectionId === 'orders') {
+          loadOrders();
+        }
       }
     });
   });
+  
+  // Load orders on page load if orders section exists
+  const ordersSection = document.getElementById('orders');
+  if (ordersSection) {
+    loadOrders();
+  }
+}
+
+async function loadOrders() {
+  const ordersContainer = document.getElementById('ordersContainer');
+  if (!ordersContainer) return;
+  
+  try {
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+      ordersContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-secondary);">Please log in to view your orders.</p>';
+      return;
+    }
+    
+    // Try to load orders from API
+    if (typeof apiGetOrders === 'function') {
+      const response = await apiGetOrders();
+      
+      if (response && response.success && response.orders && response.orders.length > 0) {
+        ordersContainer.innerHTML = response.orders.map(order => `
+          <div class="order-card">
+            <div class="order-card-header">
+              <div>
+                <h4>Order #${order.orderId || order.id}</h4>
+                <p class="order-date">${new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+              </div>
+              <span class="order-status ${(order.status || 'pending').toLowerCase()}">
+                ${order.status || 'Pending'}
+              </span>
+            </div>
+            <div class="order-card-body">
+              <p><strong>Items:</strong> ${order.items && order.items.length > 0 ? order.items.map(i => i.name).join(', ') : 'N/A'}</p>
+              <p><strong>Total:</strong> GHS ${(order.total || 0).toFixed(2)}</p>
+            </div>
+            <div class="order-card-actions">
+              <a href="tracking.html" class="btn btn-sm btn-outline">
+                <i class="fas fa-map-marker-alt"></i> Track
+              </a>
+              <button class="btn btn-sm btn-outline">
+                <i class="fas fa-redo"></i> Reorder
+              </button>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        ordersContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-secondary);"><i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>No orders yet. Start placing orders to see them here!</p>';
+      }
+    } else {
+      ordersContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-secondary);"><i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>No orders yet. Start placing orders to see them here!</p>';
+    }
+  } catch (error) {
+    console.error('Error loading orders:', error);
+    ordersContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-secondary);"><i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>No orders yet. Start placing orders to see them here!</p>';
+  }
 }
 
 // ============================================
@@ -1781,6 +1845,7 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 // Export functions for global use
 window.toggleDarkMode = toggleDarkMode;
 window.togglePasswordVisibility = togglePasswordVisibility;
+window.loadOrders = loadOrders;
 window.addToCart = typeof addToCart !== 'undefined' ? addToCart : () => showToast('Cart not initialized', 'error');
 window.toggleWishlist = toggleWishlist;
 window.showToast = showToast;
