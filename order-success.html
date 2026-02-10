@@ -584,22 +584,36 @@
             }
             
             // Get order from sessionStorage (set during checkout)
-            const orderData = JSON.parse(sessionStorage.getItem('lastOrder') || '{}');
+            let orderData = JSON.parse(sessionStorage.getItem('lastOrder') || '{}');
             
             if (!orderData || !orderData.id) {
-                console.warn('Order data not found in sessionStorage');
+                console.warn('Order data not found in sessionStorage, checking localStorage...');
                 // Try to get from localStorage as fallback
                 const backup = JSON.parse(localStorage.getItem('lastOrder') || '{}');
                 if (backup && backup.id) {
+                    console.log('Found order in localStorage:', backup.id);
                     displayOrderDetails(backup);
+                    return;
+                } else {
+                    console.error('No order found in either storage. OrderID from URL:', orderId);
+                    console.log('sessionStorage contents:', sessionStorage);
+                    console.log('localStorage lastOrder:', localStorage.getItem('lastOrder'));
                 }
                 return;
             }
             
+            console.log('Found order in sessionStorage:', orderData.id);
             displayOrderDetails(orderData);
         }
         
         function displayOrderDetails(order) {
+            console.log('displayOrderDetails called with order:', order);
+            
+            if (!order || !order.id) {
+                console.error('Invalid order object:', order);
+                return;
+            }
+            
             // Set order ID
             const orderIdEl = document.getElementById('orderId');
             if (orderIdEl) orderIdEl.textContent = order.id || '-';
