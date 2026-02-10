@@ -587,7 +587,10 @@ function renderBlogPostPage() {
   const post = blogPosts.find(p => p.id === postId);
   if (!post) {
     console.error('Blog post not found:', postId);
-    document.querySelector('.blog-post-container')?.innerHTML = '<p style="text-align: center; padding: 2rem;">Blog post not found.</p>';
+    const container = document.querySelector('.blog-post-container');
+    if (container) {
+      container.innerHTML = '<p style="text-align: center; padding: 2rem;">Blog post not found.</p>';
+    }
     return;
   }
   
