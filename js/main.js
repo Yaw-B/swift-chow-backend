@@ -637,18 +637,18 @@ function renderStarRating(rating) {
   
   // Full stars
   for (let i = 0; i < fullStars; i++) {
-    starsHTML += '<i class="fas fa-star" style="color: #F59E0B;"></i>';
+    starsHTML += '<i class="fas fa-star" style="color: #fbbf24;"></i>';
   }
   
   // Half star
   if (hasHalfStar) {
-    starsHTML += '<i class="fas fa-star-half-alt" style="color: #F59E0B;"></i>';
+    starsHTML += '<i class="fas fa-star-half-alt" style="color: #fbbf24;"></i>';
   }
   
   // Empty stars
   const emptyStars = 5 - Math.ceil(rating);
   for (let i = 0; i < emptyStars; i++) {
-    starsHTML += '<i class="far fa-star" style="color: #D1D5DB;"></i>';
+    starsHTML += '<i class="far fa-star" style="color: #d1d5db;"></i>';
   }
   
   return starsHTML;
