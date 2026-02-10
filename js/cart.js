@@ -561,16 +561,16 @@ function removePromoCode() {
 // INITIALIZE CART
 // ============================================
 function initCart() {
-  cart = getCart();
+  loadCart();
   updateCartCount();
   
   // If on cart page, render cart
-  if (document.querySelector('.cart-page')) {
+  if (document.body.dataset.page === 'cart') {
     updateCartDisplay();
   }
   
   // If on checkout page, render checkout
-  if (document.querySelector('.checkout-page')) {
+  if (document.body.dataset.page === 'checkout') {
     renderCheckoutSummary();
   }
   
