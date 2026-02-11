@@ -11,6 +11,11 @@ const router = express.Router();
 
 router.post('/create', requireAuth, async (req, res) => {
   try {
+    console.log('=== ORDER CREATE REQUEST ===');
+    console.log('User ID:', req.user._id);
+    console.log('User:', { firstName: req.user.firstName, lastName: req.user.lastName, phone: req.user.phone });
+    console.log('Request body:', req.body);
+    
     const { items, deliveryAddress, paymentMethod, specialInstructions } = req.body;
     
     if (!items || items.length === 0) {
@@ -32,8 +37,8 @@ router.post('/create', requireAuth, async (req, res) => {
       userId: req.user._id,
       items,
       deliveryAddress,
-      deliveryName: req.user.firstName + ' ' + (req.user.lastName || ''),
-      deliveryPhone: req.user.phone,
+      deliveryName: (req.user.firstName || '') + ' ' + (req.user.lastName || ''),
+      deliveryPhone: req.user.phone || '',
       paymentMethod: paymentMethod || 'cod',
       subtotal,
       deliveryFee,
@@ -48,13 +53,22 @@ router.post('/create', requireAuth, async (req, res) => {
       }]
     });
     
+    console.log('Order to save:', order);
     await order.save();
+    console.log('✅ Order saved successfully:', order.orderId);
     
-    // Update user stats
-    const user = await User.findById(req.user._id);
-    user.totalOrders += 1;
-    user.totalSpent += total;
-    await user.save();
+    // Update user stats (safely)
+    try {
+      const user = await User.findById(req.user._id);
+      if (user) {
+        user.totalOrders = (user.totalOrders || 0) + 1;
+        user.totalSpent = (user.totalSpent || 0) + total;
+        await user.save();
+        console.log('✅ User stats updated');
+      }
+    } catch (userError) {
+      console.warn('Warning: Could not update user stats:', userError.message);
+    }
     
     res.status(201).json({
       success: true,
@@ -62,7 +76,8 @@ router.post('/create', requireAuth, async (req, res) => {
       orderId: order.orderId
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('❌ ERROR creating order:', error);
+    res.status(500).json({ error: error.message, stack: error.stack });
   }
 });
 
