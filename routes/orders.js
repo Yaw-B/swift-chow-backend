@@ -32,8 +32,16 @@ router.post('/create', requireAuth, async (req, res) => {
     const tax = subtotal * 0.05; // 5% tax
     const total = subtotal + deliveryFee + tax;
     
+    // Generate orderId
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.random().toString(36).substring(2, 7).toUpperCase();
+    const orderId = `SC${timestamp}${random}`;
+    
+    console.log('Generated orderId:', orderId);
+    
     // Create order
     const order = new Order({
+      orderId, // Set the orderId explicitly
       userId: req.user._id,
       items,
       deliveryAddress,
