@@ -1671,16 +1671,21 @@ function initOrderTracking() {
 }
 
 function displayOrderTracking(orderId) {
+  console.log('🔍 displayOrderTracking called with orderId:', orderId);
+  
   // First, try to fetch from API (database)
   let order = null;
   
   const fetchAndDisplay = async () => {
     try {
+      console.log('📍 fetchAndDisplay started, authenticated:', isAuthenticated());
+      
       // Try to fetch from API if user is authenticated
       if (isAuthenticated() && typeof apiGetOrder === 'function') {
         try {
-          console.log('Fetching order from API:', orderId);
+          console.log('📡 Fetching order from API:', orderId);
           const response = await apiGetOrder(orderId);
+          console.log('📦 API Response:', response);
           
           if (response && response.success && response.order) {
             order = {
@@ -1701,16 +1706,22 @@ function displayOrderTracking(orderId) {
               createdAt: response.order.createdAt
             };
             console.log('✅ Order fetched from API:', order);
+          } else {
+            console.warn('⚠️ API response invalid:', { success: response?.success, hasOrder: !!response?.order });
           }
         } catch (apiError) {
-          console.warn('API fetch failed, checking localStorage:', apiError.message);
+          console.warn('❌ API fetch failed, checking localStorage:', apiError.message);
           order = getOrderById(orderId);
+          console.log('📦 Order from localStorage:', order);
         }
       } else {
         // Fallback to localStorage if not authenticated
+        console.log('📌 Not authenticated or apiGetOrder not available, using localStorage');
         order = getOrderById(orderId);
+        console.log('📦 Order from localStorage:', order);
       }
       
+      console.log('🎯 About to display UI with order:', order);
       // Display the order
       displayTrackingUI(orderId, order);
     } catch (error) {

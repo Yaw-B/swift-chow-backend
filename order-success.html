@@ -406,7 +406,7 @@
 
                 <!-- Action Buttons -->
                 <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
-                    <a href="tracking.html" class="btn btn-primary" style="
+                    <a href="#" id="trackOrderBtn" class="btn btn-primary" style="
                         background: var(--primary);
                         color: white;
                         padding: 1rem 2rem;
@@ -743,6 +743,23 @@
         
         // Load order details when page loads
         document.addEventListener('DOMContentLoaded', loadOrderDetails);
+        
+        // Handle Track Order button click
+        const trackOrderBtn = document.getElementById('trackOrderBtn');
+        if (trackOrderBtn) {
+            trackOrderBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const urlParams = new URLSearchParams(window.location.search);
+                const orderId = urlParams.get('order');
+                if (orderId) {
+                    console.log('✅ Redirecting to tracking page with orderId:', orderId);
+                    window.location.href = `tracking.html?order=${orderId}`;
+                } else {
+                    console.error('❌ No order ID found to track');
+                    showToast('Order ID not found', 'error');
+                }
+            });
+        }
     </script>
 </body>
 </html>
