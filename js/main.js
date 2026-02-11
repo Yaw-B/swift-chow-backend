@@ -1479,9 +1479,18 @@ function initCheckoutForm() {
     
     // Handle different payment methods
     if (selectedPaymentMethod === 'cod') {
-      // Pay on Delivery - process immediately
-      const order = processOrder(orderData);
-      window.location.href = `order-success.html?order=${order.id}`;
+      // Pay on Delivery - process immediately (async)
+      processOrder(orderData).then(order => {
+        if (order && order.id) {
+          console.log('✅ Redirecting to order success with orderId:', order.id);
+          window.location.href = `order-success.html?order=${order.id}`;
+        } else {
+          showToast('Failed to create order. Please try again.', 'error');
+        }
+      }).catch(error => {
+        console.error('Order processing error:', error);
+        showToast('Error creating order: ' + error.message, 'error');
+      });
     } else if (selectedPaymentMethod === 'momo' || selectedPaymentMethod === 'card') {
       // Mobile Money or Card - show payment modal
       showPaymentModal(orderData);
@@ -1609,16 +1618,29 @@ function showPaymentModal(orderData) {
     btn.disabled = true;
     btn.textContent = 'Processing...';
     
-    // Simulate payment processing
+    // Process payment and create order (async)
     setTimeout(() => {
-      // In a real app, you would process the payment with a payment gateway here
-      const order = processOrder(orderData);
-      document.getElementById('paymentModal').remove();
-      
-      showToast('Payment successful! Order confirmed.', 'success');
-      setTimeout(() => {
-        window.location.href = `order-success.html?order=${order.id}`;
-      }, 1000);
+      processOrder(orderData).then(order => {
+        document.getElementById('paymentModal').remove();
+        
+        if (order && order.id) {
+          showToast('Payment successful! Order confirmed.', 'success');
+          setTimeout(() => {
+            console.log('✅ Redirecting to order success with orderId:', order.id);
+            window.location.href = `order-success.html?order=${order.id}`;
+          }, 1000);
+        } else {
+          btn.disabled = false;
+          btn.textContent = originalText;
+          showToast('Failed to create order. Please try again.', 'error');
+        }
+      }).catch(error => {
+        document.getElementById('paymentModal').remove();
+        btn.disabled = false;
+        btn.textContent = originalText;
+        console.error('Order processing error:', error);
+        showToast('Error creating order: ' + error.message, 'error');
+      });
     }, 2000);
   });
 }
@@ -1649,25 +1671,88 @@ function initOrderTracking() {
 }
 
 function displayOrderTracking(orderId) {
-  const order = getOrderById(orderId);
+  // First, try to fetch from API (database)
+  let order = null;
   
+  const fetchAndDisplay = async () => {
+    try {
+      // Try to fetch from API if user is authenticated
+      if (isAuthenticated() && typeof apiGetOrder === 'function') {
+        try {
+          console.log('Fetching order from API:', orderId);
+          const response = await apiGetOrder(orderId);
+          
+          if (response && response.success && response.order) {
+            order = {
+              id: response.order.orderId || response.order._id,
+              orderId: response.order.orderId,
+              items: response.order.items,
+              subtotal: response.order.subtotal,
+              deliveryFee: response.order.deliveryFee,
+              total: response.order.total,
+              customer: {
+                address: response.order.deliveryAddress?.street,
+                city: response.order.deliveryAddress?.city,
+                landmark: response.order.deliveryAddress?.landmark
+              },
+              paymentMethod: response.order.paymentMethod,
+              status: response.order.status,
+              timestamp: response.order.createdAt,
+              createdAt: response.order.createdAt
+            };
+            console.log('✅ Order fetched from API:', order);
+          }
+        } catch (apiError) {
+          console.warn('API fetch failed, checking localStorage:', apiError.message);
+          order = getOrderById(orderId);
+        }
+      } else {
+        // Fallback to localStorage if not authenticated
+        order = getOrderById(orderId);
+      }
+      
+      // Display the order
+      displayTrackingUI(orderId, order);
+    } catch (error) {
+      console.error('Error fetching order tracking:', error);
+      displayTrackingUI(orderId, null);
+    }
+  };
+  
+  fetchAndDisplay();
+}
+
+function displayTrackingUI(orderId, order) {
   const orderIdEl = document.querySelector('.tracking-id');
   const timeline = document.querySelector('.tracking-timeline');
   const orderDetails = document.querySelector('.tracking-details');
   
   if (!order) {
     if (orderIdEl) orderIdEl.textContent = 'Order not found';
+    if (orderDetails) {
+      orderDetails.innerHTML = '<p style="color: var(--color-error);">We couldn\'t find this order. Please check the order number and try again.</p>';
+    }
     return;
   }
   
-  if (orderIdEl) orderIdEl.textContent = order.id;
+  if (orderIdEl) orderIdEl.textContent = order.id || orderId;
   
-  // Simulate order status (random step for demo)
-  const statuses = ['confirmed', 'preparing', 'out-for-delivery', 'delivered'];
-  const currentStatus = Math.floor(Math.random() * 4);
+  // Determine current status
+  const statusMap = {
+    'pending': 0,
+    'confirmed': 1,
+    'preparing': 1,
+    'ready': 2,
+    'out_for_delivery': 3,
+    'out-for-delivery': 3,
+    'delivered': 4,
+    'cancelled': -1
+  };
+  
+  const currentStatus = statusMap[order.status?.toLowerCase()] || Math.floor(Math.random() * 4);
   
   if (timeline) {
-    timeline.className = `tracking-timeline step-${currentStatus + 1}`;
+    timeline.className = `tracking-timeline step-${Math.min(currentStatus + 1, 4)}`;
     
     const steps = timeline.querySelectorAll('.tracking-step');
     steps.forEach((step, i) => {
@@ -1686,20 +1771,28 @@ function displayOrderTracking(orderId) {
       <div class="order-info-grid">
         <div class="order-info-item">
           <h4>Delivery Address</h4>
-          <p>${order.customer.address}<br>${order.customer.city}, Ghana</p>
+          <p>${order.customer?.address || 'Address not found'}<br>${order.customer?.city || ''}, Ghana</p>
         </div>
         <div class="order-info-item">
-          <h4>Order Items</h4>
-          ${order.items.map(item => `<p>${item.quantity}x ${item.name}</p>`).join('')}
+          <h4>Order Items (${order.items?.length || 0} items)</h4>
+          ${order.items?.map(item => `<p>${item.quantity}x ${item.name}</p>`).join('') || '<p>No items found</p>'}
         </div>
         <div class="order-info-item">
           <h4>Order Total</h4>
-          <p class="order-total-amount">GHS ${order.total.toFixed(2)}</p>
+          <p class="order-total-amount">GHS ${(order.total || 0).toFixed(2)}</p>
         </div>
         <div class="order-info-item">
           <h4>Payment Method</h4>
-          <p>${order.paymentMethod}</p>
+          <p>${order.paymentMethod || 'Not specified'}</p>
         </div>
+        <div class="order-info-item">
+          <h4>Order Status</h4>
+          <p>${order.status || 'Processing'}</p>
+        </div>
+        ${order.timestamp ? `<div class="order-info-item">
+          <h4>Order Time</h4>
+          <p>${new Date(order.timestamp).toLocaleDateString()} ${new Date(order.timestamp).toLocaleTimeString()}</p>
+        </div>` : ''}
       </div>
     `;
   }
@@ -1717,27 +1810,62 @@ function initOrderSuccess() {
     const orderIdEl = document.querySelector('.success-order-id');
     if (orderIdEl) orderIdEl.textContent = orderId;
     
-    const order = getOrderById(orderId);
-    if (order) {
-      const orderSummary = document.querySelector('.success-order-summary');
-      if (orderSummary) {
-        orderSummary.innerHTML = `
-          <h4>Order Summary</h4>
-          <div class="success-items">
-            ${order.items.map(item => `
-              <div class="success-item">
-                <span>${item.quantity}x ${item.name}</span>
-                <span>GHS ${(item.price * item.quantity).toFixed(2)}</span>
+    // Try to fetch order from API (database) first
+    const fetchAndDisplayOrder = async () => {
+      let order = null;
+      
+      try {
+        // Try API if authenticated
+        if (isAuthenticated() && typeof apiGetOrder === 'function') {
+          try {
+            console.log('Fetching success page order from API:', orderId);
+            const response = await apiGetOrder(orderId);
+            
+            if (response && response.success && response.order) {
+              order = {
+                id: response.order.orderId || response.order._id,
+                items: response.order.items,
+                total: response.order.total,
+                subtotal: response.order.subtotal,
+                deliveryFee: response.order.deliveryFee
+              };
+              console.log('✅ Order fetched from API for success page');
+            }
+          } catch (apiError) {
+            console.warn('API fetch failed for success page, using localStorage:', apiError.message);
+            order = getOrderById(orderId);
+          }
+        } else {
+          order = getOrderById(orderId);
+        }
+        
+        // Display the order summary
+        if (order) {
+          const orderSummary = document.querySelector('.success-order-summary');
+          if (orderSummary) {
+            orderSummary.innerHTML = `
+              <h4>Order Summary</h4>
+              <div class="success-items">
+                ${order.items.map(item => `
+                  <div class="success-item">
+                    <span>${item.quantity}x ${item.name}</span>
+                    <span>GHS ${(item.price * item.quantity).toFixed(2)}</span>
+                  </div>
+                `).join('')}
               </div>
-            `).join('')}
-          </div>
-          <div class="success-total">
-            <span>Total Paid</span>
-            <strong>GHS ${order.total.toFixed(2)}</strong>
-          </div>
-        `;
+              <div class="success-total">
+                <span>Total Paid</span>
+                <strong>GHS ${order.total.toFixed(2)}</strong>
+              </div>
+            `;
+          }
+        }
+      } catch (error) {
+        console.error('Error displaying order on success page:', error);
       }
-    }
+    };
+    
+    fetchAndDisplayOrder();
   }
 }
 

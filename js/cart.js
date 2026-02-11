@@ -538,58 +538,102 @@ function generateOrderId() {
   return `SWIFT-${timestamp}-${random}`;
 }
 
-// Process order
-function processOrder(orderData) {
-  const orderId = generateOrderId();
-  const orderTimestamp = new Date();
-  
-  const order = {
-    id: orderId,
-    items: [...cart],
-    subtotal: getCartSubtotal(),
-    deliveryFee: orderData.deliveryFee || 15,
-    total: getCartTotal(orderData.deliveryFee || 15),
-    customer: {
-      firstName: orderData.firstName,
-      lastName: orderData.lastName,
-      email: orderData.email,
-      phone: orderData.phone,
-      address: orderData.address,
-      city: orderData.city,
-      landmark: orderData.landmark,
-      notes: orderData.notes
-    },
-    paymentMethod: orderData.paymentMethod,
-    status: 'confirmed',
-    timestamp: orderTimestamp.toISOString(),
-    createdAt: orderTimestamp.toISOString(),
-    date: orderTimestamp.toISOString(),
-    city: orderData.city,
-    estimatedDelivery: calculateEstimatedDelivery(orderData.city),
-    orderTime: orderTimestamp
-  };
-  
-  // Save order to localStorage (in real app, this would go to server)
-  const orders = JSON.parse(localStorage.getItem('fafoOrders')) || [];
-  orders.push(order);
-  localStorage.setItem('fafoOrders', JSON.stringify(orders));
-  localStorage.setItem('lastOrder', JSON.stringify(order));
-  sessionStorage.setItem('lastOrder', JSON.stringify(order)); // Also save to sessionStorage for quick access
-  
-  console.log('Order processed and saved:', {
-    id: order.id,
-    timestamp: order.timestamp,
-    city: order.city,
-    totalItems: order.items.length,
-    inSessionStorage: sessionStorage.getItem('lastOrder') ? 'YES' : 'NO',
-    inLocalStorage: localStorage.getItem('lastOrder') ? 'YES' : 'NO'
-  });
-  
-  // Clear cart
-  cart = [];
-  saveCart();
-  
-  return order;
+// Process order - NOW SAVES TO DATABASE
+async function processOrder(orderData) {
+  try {
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+      console.error('User not authenticated for order');
+      showToast('Please log in to place an order', 'error');
+      return null;
+    }
+    
+    // Prepare order data for API
+    const orderPayload = {
+      items: cart.map(item => ({
+        foodId: item.id,
+        name: item.name,
+        category: item.category || '',
+        quantity: item.quantity,
+        price: item.price,
+        image: item.image || ''
+      })),
+      deliveryAddress: {
+        street: orderData.address,
+        city: orderData.city,
+        landmark: orderData.landmark || '',
+        coordinates: { latitude: 0, longitude: 0 }
+      },
+      paymentMethod: orderData.paymentMethod || 'cod',
+      specialInstructions: orderData.notes || ''
+    };
+    
+    console.log('Sending order to backend:', orderPayload);
+    
+    // Call backend API to create order
+    const response = await apiCreateOrder(orderPayload);
+    
+    if (response && response.success && response.order) {
+      const order = response.order;
+      
+      // Save to local storage as backup
+      const localOrder = {
+        id: order.orderId || order._id,
+        orderId: order.orderId,
+        items: order.items,
+        subtotal: order.subtotal,
+        deliveryFee: order.deliveryFee,
+        total: order.total,
+        customer: {
+          firstName: orderData.firstName,
+          lastName: orderData.lastName,
+          email: orderData.email,
+          phone: orderData.phone,
+          address: orderData.address,
+          city: orderData.city,
+          landmark: orderData.landmark,
+          notes: orderData.notes
+        },
+        paymentMethod: order.paymentMethod,
+        status: order.status || 'confirmed',
+        timestamp: order.createdAt,
+        createdAt: order.createdAt,
+        date: order.createdAt,
+        city: orderData.city,
+        estimatedDelivery: order.estimatedDeliveryTime,
+        orderTime: new Date().toISOString()
+      };
+      
+      const orders = JSON.parse(localStorage.getItem('fafoOrders')) || [];
+      orders.push(localOrder);
+      localStorage.setItem('fafoOrders', JSON.stringify(orders));
+      localStorage.setItem('lastOrder', JSON.stringify(localOrder));
+      sessionStorage.setItem('lastOrder', JSON.stringify(localOrder));
+      
+      console.log('✅ Order saved to database and local storage:', {
+        id: localOrder.id,
+        orderId: localOrder.orderId,
+        timestamp: localOrder.timestamp,
+        city: localOrder.city,
+        totalItems: localOrder.items.length,
+        status: localOrder.status
+      });
+      
+      // Clear cart
+      cart = [];
+      saveCart();
+      
+      return localOrder;
+    } else {
+      console.error('Failed to create order on backend:', response);
+      showToast('Failed to create order. Please try again.', 'error');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error processing order:', error);
+    showToast('Error creating order: ' + error.message, 'error');
+    return null;
+  }
 }
 
 // Calculate estimated delivery time
