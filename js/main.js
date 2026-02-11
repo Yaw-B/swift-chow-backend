@@ -624,7 +624,7 @@ function renderBlogPostPage() {
   // Update the image
   const imageDiv = container.querySelector('.blog-post-image');
   if (imageDiv) {
-    imageDiv.innerHTML = '<img src="' + post.image + '" alt="' + post.title + '">';
+    imageDiv.innerHTML = '<img src="' + post.image + '" alt="' + post.title + '" loading="lazy">';
   }
   
   // Update the content
@@ -638,7 +638,7 @@ function renderBlogPostPage() {
   if (relatedContainer && typeof getRelatedBlogPosts === 'function') {
     const relatedPosts = getRelatedBlogPosts(postId, 2);
     relatedContainer.innerHTML = relatedPosts.map(relatedPost => {
-      return '<article class="blog-card"><div class="blog-card-image"><img src="' + relatedPost.image + '" alt="' + relatedPost.title + '"></div><div class="blog-card-content"><div class="blog-card-meta"><span><i class="far fa-calendar"></i> ' + formatDate(relatedPost.date) + '</span></div><h3 class="blog-card-title">' + relatedPost.title + '</h3><a href="blog-post.html?id=' + relatedPost.id + '" class="blog-card-link">Read More <i class="fas fa-arrow-right"></i></a></div></article>';
+      return '<article class="blog-card"><div class="blog-card-image"><img src="' + relatedPost.image + '" alt="' + relatedPost.title + '" loading="lazy"></div><div class="blog-card-content"><div class="blog-card-meta"><span><i class="far fa-calendar"></i> ' + formatDate(relatedPost.date) + '</span></div><h3 class="blog-card-title">' + relatedPost.title + '</h3><a href="blog-post.html?id=' + relatedPost.id + '" class="blog-card-link">Read More <i class="fas fa-arrow-right"></i></a></div></article>';
     }).join('');
   }
 }
@@ -3067,7 +3067,7 @@ function updateCartModal() {
       
       html += `
         <div style="display: flex; gap: 1rem; padding: 1rem; margin: 0.75rem 0.75rem; border-radius: 1rem; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); align-items: center;">
-          <img src="${item.image || 'https://via.placeholder.com/80'}" alt="${item.name}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 0.5rem;">
+          <img src="${item.image || 'https://via.placeholder.com/80'}" alt="${item.name}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 0.5rem;" loading="lazy">
           <div style="flex: 1;">
             <h4 style="margin: 0 0 0.25rem 0; font-size: 0.95rem;">${item.name}</h4>
             <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">GHS ${item.price.toFixed(2)}</p>
@@ -3507,7 +3507,7 @@ function updateFloatingCart() {
   const itemsContainer = document.querySelector('.floating-cart-items');
   if (itemsContainer && currentCart && currentCart.length > 0) {
     itemsContainer.innerHTML = currentCart.map(item => {
-      return '<div style="padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; gap: 8px; align-items: center;"><img src="' + item.image + '" alt="' + item.name + '" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;"><div style="flex: 1; font-size: 0.85rem;"><div style="font-weight: 500;">' + item.name + '</div><div style="color: var(--text-secondary);">x' + item.quantity + '</div></div><div style="font-weight: 600; white-space: nowrap; display: flex; align-items: center; gap: 6px;"><span>GHS ' + (item.price * item.quantity).toFixed(2) + '</span><button class="btn btn-sm" style="padding: 4px 6px; font-size: 0.75rem; color: #dc2626; background: none; border: none; cursor: pointer; margin: 0;" onclick="removeFromCart(' + item.id + ')"><i class="fas fa-trash"></i></button></div></div>';
+      return '<div style="padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; gap: 8px; align-items: center;"><img src="' + item.image + '" alt="' + item.name + '" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;" loading="lazy"><div style="flex: 1; font-size: 0.85rem;"><div style="font-weight: 500;">' + item.name + '</div><div style="color: var(--text-secondary);">x' + item.quantity + '</div></div><div style="font-weight: 600; white-space: nowrap; display: flex; align-items: center; gap: 6px;"><span>GHS ' + (item.price * item.quantity).toFixed(2) + '</span><button class="btn btn-sm" style="padding: 4px 6px; font-size: 0.75rem; color: #dc2626; background: none; border: none; cursor: pointer; margin: 0;" onclick="removeFromCart(' + item.id + ')"><i class="fas fa-trash"></i></button></div></div>';
     }).join('');
   } else if (itemsContainer) {
     itemsContainer.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">Cart is empty</div>';
