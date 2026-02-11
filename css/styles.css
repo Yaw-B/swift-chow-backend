@@ -216,12 +216,17 @@ textarea:focus-visible {
    IMAGE OPTIMIZATION & RESPONSIVE IMAGES
    ============================================ */
 /* Prevent image layout shift with aspect-ratio */
-.food-card-image,
 .blog-card-image,
 .product-image,
 .menu-item-image,
 .gallery-item {
     aspect-ratio: 1 / 1;
+    background: var(--bg-secondary);
+}
+
+.food-card-image {
+    width: 100%;
+    height: 200px;
     background: var(--bg-secondary);
 }
 
@@ -244,7 +249,11 @@ img[loading="lazy"] {
 
 /* Responsive image sizing for mobile */
 @media (max-width: 768px) {
-    .food-card-image,
+    .food-card-image {
+        width: 100%;
+        height: 200px;
+    }
+    
     .menu-item-image,
     .product-image {
         aspect-ratio: 1 / 1;
