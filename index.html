@@ -5,13 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SWIFT CHOW - Ghana's #1 Fast Food Destination</title>
     <meta name="description" content="Premium burgers, authentic pizzas, and irresistible desserts made with love in Accra. Order now and experience fast food like never before.">
+    <!-- Performance: DNS prefetch for external resources -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <!-- Preconnect for faster resource loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+    <!-- Font optimization: display=swap prevents FOUT, preload critical font weights -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main stylesheet with media query preload -->
+    <link rel="stylesheet" href="css/styles.css" media="screen">
+    <!-- Icon library -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'><defs><linearGradient id='favicon' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23FF6B35;stop-opacity:1'/><stop offset='100%' style='stop-color:%23FFB627;stop-opacity:1'/></linearGradient></defs><line x1='7' y1='3' x2='7' y2='14' stroke='url(%23favicon)' stroke-width='1.5' stroke-linecap='round'/><line x1='12' y1='3' x2='12' y2='14' stroke='url(%23favicon)' stroke-width='1.5' stroke-linecap='round'/><line x1='17' y1='3' x2='17' y2='14' stroke='url(%23favicon)' stroke-width='1.5' stroke-linecap='round'/><path d='M10 14Q12 16 12 18' stroke='url(%23favicon)' stroke-width='1.5' stroke-linecap='round' fill='none'/><circle cx='12' cy='19' r='5' stroke='url(%23favicon)' stroke-width='1.2' fill='none'/><circle cx='13' cy='17' r='1.2' fill='url(%23favicon)'/><circle cx='11' cy='18' r='1' fill='url(%23favicon)' opacity='0.7'/></svg>">
+    <!-- Preload critical images for faster hero display -->
+    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&h=600&fit=crop" type="image/jpeg">
     <style>
         /* Hero Specific Styles - Matching React Version */
         .hero-premium {

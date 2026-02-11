@@ -4573,6 +4573,603 @@ input, textarea, select {
 }
 
 /* ============================================
+   PERFORMANCE & INTERACTION POLISH
+   ============================================ */
+
+/* Font optimization - dynamic loading */
+@font-face {
+    font-family: 'Poppins';
+    font-display: swap; /* Show fallback text immediately */
+    src: url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+}
+
+/* Image optimization - prevent layout shift */
+img {
+    content-visibility: auto;
+}
+
+/* ============================================
+   MICRO-ANIMATIONS & POLISH
+   ============================================ */
+
+/* Button animations - enhance touch feedback */
+.btn {
+    position: relative;
+    overflow: hidden;
+    will-change: transform, box-shadow;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.btn:active::after {
+    animation: ripple 0.6s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+    100% {
+        width: 300px;
+        height: 300px;
+        opacity: 0;
+    }
+}
+
+/* Card hover animations */
+.food-card,
+.blog-card,
+.review-card,
+.product-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, box-shadow;
+}
+
+.food-card:hover,
+.blog-card:hover,
+.product-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.food-card:active,
+.blog-card:active,
+.product-card:active {
+    transform: translateY(-4px) scale(1.01);
+}
+
+/* Link hover animations */
+a {
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+a:active {
+    opacity: 0.7;
+}
+
+/* Form input focus animations */
+input:focus,
+textarea:focus,
+select:focus {
+    will-change: border-color, box-shadow;
+}
+
+input:focus,
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    animation: glow 0.3s ease;
+}
+
+@keyframes glow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.2);
+    }
+    100% {
+        box-shadow: 0 0 0 8px rgba(220, 38, 38, 0);
+    }
+}
+
+/* Smooth page transitions */
+.page-enter {
+    animation: pageIn 0.4s ease-out;
+}
+
+@keyframes pageIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading skeleton animations */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.loading-skeleton {
+    background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* Smooth scrolling for carousels */
+.carousel-container {
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+}
+
+.carousel-item {
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+}
+
+/* Mobile-optimized touch states */
+@media (hover: none) {
+    /* Remove hover effects on touch devices */
+    .btn:hover {
+        transform: none;
+    }
+    
+    .food-card:hover,
+    .blog-card:hover {
+        transform: none;
+    }
+}
+
+/* ============================================
+   ADVANCED MOBILE SPACING POLISH
+   ============================================ */
+@media (max-width: 768px) {
+    /* Better spacing hierarchy */
+    .section {
+        padding: 2.5rem 0;
+    }
+    
+    .section:first-of-type {
+        padding-top: 1.5rem;
+    }
+    
+    .section:last-of-type {
+        padding-bottom: 1.5rem;
+    }
+    
+    /* Improved card spacing */
+    .food-card,
+    .blog-card,
+    .review-card {
+        margin-bottom: 1.25rem;
+    }
+    
+    /* Better section headers */
+    .section-header {
+        margin-bottom: 2rem;
+    }
+    
+    .section-title {
+        margin-bottom: 0.5rem;
+    }
+    
+    .section-subtitle {
+        margin-bottom: 0;
+    }
+    
+    /* Improved list spacing */
+    .list-item {
+        padding: 1rem;
+        gap: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .list-item:last-child {
+        border-bottom: none;
+    }
+    
+    /* Better form spacing */
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-group label {
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        padding: 0.875rem;
+    }
+    
+    /* Improved button spacing in forms */
+    .form-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+    }
+    
+    /* Better modal spacing */
+    .modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .modal-footer {
+        padding: 1.5rem;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .modal-footer .btn {
+        flex: 1;
+    }
+    
+    /* Improved accordion spacing */
+    .accordion-item {
+        margin-bottom: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+    }
+    
+    .accordion-header {
+        padding: 1rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        min-height: 48px;
+    }
+    
+    .accordion-content {
+        padding: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    /* Better badge and tag spacing */
+    .badge {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.75rem;
+    }
+    
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .tag {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* ============================================
+   CARD COMPONENT POLISH
+   ============================================ */
+@media (max-width: 768px) {
+    /* Food card optimization */
+    .food-card {
+        display: flex;
+        flex-direction: column;
+        overflow: visible;
+    }
+    
+    .food-card-image {
+        width: 100%;
+        height: 200px;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    
+    .food-card-content {
+        padding: 1rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .food-card-title {
+        font-size: 1rem;
+        line-height: 1.3;
+        margin-bottom: 0.5rem;
+    }
+    
+    .food-card-desc {
+        font-size: 0.85rem;
+        line-height: 1.4;
+        margin-bottom: 0.75rem;
+    }
+    
+    .food-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: auto;
+    }
+    
+    .food-card-price {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    
+    /* Blog card optimization */
+    .blog-card {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .blog-card-image {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    
+    .blog-card-content {
+        padding: 1rem;
+    }
+    
+    .blog-card-title {
+        font-size: 1.05rem;
+        line-height: 1.3;
+    }
+    
+    .blog-card-excerpt {
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    /* Review card optimization */
+    .review-card {
+        padding: 1rem;
+        border-radius: var(--radius-lg);
+    }
+    
+    .reviewer-info {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        align-items: center;
+    }
+    
+    .reviewer-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+    
+    .reviewer-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+    
+    .review-rating {
+        color: var(--primary);
+        font-size: 0.9rem;
+    }
+    
+    .review-text {
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+}
+
+/* ============================================
+   FORM AND BUTTON POLISH
+   ============================================ */
+@media (max-width: 768px) {
+    /* Text input optimization */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="date"],
+    input[type="time"],
+    textarea,
+    select {
+        min-height: 48px;
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+        border-radius: var(--radius-lg);
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    /* Focus state with better visual feedback */
+    input:focus,
+    textarea:focus,
+    select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+    }
+    
+    /* Error state */
+    input.error,
+    textarea.error,
+    select.error {
+        border-color: var(--error);
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+    }
+    
+    /* Success state */
+    input.success,
+    textarea.success,
+    select.success {
+        border-color: var(--success);
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+    
+    /* Textarea */
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    /* Select dropdown */
+    select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23666'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        padding-right: 2.5rem;
+        appearance: none;
+    }
+    
+    /* Button variations */
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        transition: all 0.2s ease;
+    }
+    
+    .btn-primary:active {
+        box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+    }
+    
+    .btn-secondary {
+        transition: all 0.2s ease;
+    }
+    
+    .btn-secondary:active {
+        background: var(--bg-secondary);
+    }
+    
+    .btn-outline {
+        transition: all 0.2s ease;
+    }
+    
+    .btn-outline:active {
+        background: var(--primary-light);
+    }
+    
+    /* Disabled state */
+    .btn:disabled,
+    button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    
+    /* Loading state */
+    .btn.loading::after {
+        content: '';
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        border: 2px solid currentColor;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 0.6s linear infinite;
+        margin-left: 0.5rem;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+}
+
+/* ============================================
+   MODAL AND DROPDOWN POLISH
+   ============================================ */
+@media (max-width: 768px) {
+    /* Modal backdrop */
+    .modal-overlay {
+        backdrop-filter: blur(4px);
+        background: rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Modal animation */
+    .modal.show {
+        animation: slideUp 0.3s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    /* Close button */
+    .modal-close {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-full);
+        transition: all 0.2s ease;
+    }
+    
+    .modal-close:active {
+        background: var(--bg-secondary);
+    }
+    
+    /* Dropdown menu */
+    .dropdown-menu {
+        border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dropdown-menu.open {
+        animation: slideUp 0.3s ease-out;
+    }
+    
+    .dropdown-item {
+        padding: 1rem;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid var(--border-color);
+        transition: background 0.2s ease;
+    }
+    
+    .dropdown-item:last-child {
+        border-bottom: none;
+    }
+    
+    .dropdown-item:active {
+        background: var(--bg-secondary);
+    }
+}
+
+/* ============================================
    PRINT STYLES
    ============================================ */
 @media print {
@@ -8413,6 +9010,582 @@ html {
 
 .transition-slow {
     transition: all 0.5s ease;
+}
+
+/* ============================================
+   ADVANCED MICRO-INTERACTIONS
+   ============================================ */
+
+/* Page entrance animation */
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Content fade in */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Scale up animation */
+@keyframes scaleUp {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Bounce animation */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Pulse animation */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Swing animation */
+@keyframes swing {
+    20% { transform: rotate(15deg); }
+    40% { transform: rotate(-10deg); }
+    60% { transform: rotate(5deg); }
+    80% { transform: rotate(-5deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* Slide in from left */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Slide in from right */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Rotate animation */
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Heartbeat animation */
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.2); }
+    50% { transform: scale(1); }
+}
+
+/* Card flip animation */
+@keyframes flip {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(180deg); }
+}
+
+/* Shimmer loading animation */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+/* Skeleton loading animation */
+.skeleton {
+    background: linear-gradient(90deg, rgba(255,255,255,.1) 25%, rgba(255,255,255,.2) 50%, rgba(255,255,255,.1) 75%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+    border-radius: 4px;
+}
+
+/* Smooth transitions for interactive elements */
+button,
+a,
+input,
+textarea,
+select {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced button interactions */
+.btn {
+    position: relative;
+    overflow: hidden;
+    transform: none;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    transition: all 0.5s ease;
+}
+
+.btn:active::before {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+}
+
+/* Button hover scale effect */
+.btn:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Button active/pressed state */
+.btn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Disabled button state */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Focus visible for accessibility */
+.btn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Input field enhancements */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="phone"],
+input[type="date"],
+textarea,
+select {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-family: inherit;
+}
+
+input[type="text"]:hover,
+input[type="email"]:hover,
+input[type="password"]:hover,
+input[type="phone"]:hover,
+input[type="date"]:hover,
+textarea:hover,
+select:hover {
+    border-color: var(--primary);
+    background: var(--bg-primary);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="phone"]:focus,
+input[type="date"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    background: var(--bg-primary);
+}
+
+/* Placeholder styling */
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+/* Textarea resize handle */
+textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Form validation states */
+input.error,
+textarea.error,
+select.error {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+input.success,
+textarea.success,
+select.success {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Loading state animations */
+.loading,
+.loading::after {
+    border-radius: 50%;
+}
+
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(220, 38, 38, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--primary);
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Card hover and interaction effects */
+.card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, box-shadow;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.card:active {
+    transform: translateY(-2px);
+}
+
+/* Image hover zoom effect */
+img {
+    transition: transform 0.4s ease;
+}
+
+.card:hover img {
+    transform: scale(1.05);
+}
+
+/* Link hover underline animation */
+a:not(.btn) {
+    position: relative;
+    text-decoration: none;
+}
+
+a:not(.btn)::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: currentColor;
+    transition: width 0.3s ease;
+}
+
+a:not(.btn):hover::after {
+    width: 100%;
+}
+
+/* Navigation item animations */
+.nav-item {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 3px;
+    background: var(--primary);
+    transition: width 0.3s ease;
+}
+
+.nav-item:hover::before {
+    width: 100%;
+}
+
+.nav-item.active::before {
+    width: 100%;
+}
+
+/* Dropdown menu animations */
+.dropdown-menu {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px) scaleY(0.8);
+    transform-origin: top;
+    transition: all 0.3s ease;
+}
+
+.dropdown.open .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scaleY(1);
+}
+
+/* Dropdown item hover */
+.dropdown-item {
+    transition: all 0.2s ease;
+    padding: 12px 16px;
+}
+
+.dropdown-item:hover {
+    background: var(--bg-secondary);
+    padding-left: 20px;
+}
+
+/* Modal animations */
+.modal {
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Modal backdrop fade */
+.modal-backdrop {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Notification/Toast animations */
+.notification {
+    animation: slideInRight 0.3s ease;
+}
+
+.notification.removing {
+    animation: slideInRight 0.3s ease reverse;
+}
+
+/* Smooth scroll snap for carousels */
+.carousel {
+    scroll-snap-type: x mandatory;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+}
+
+.carousel-item {
+    scroll-snap-align: center;
+}
+
+/* Star rating animation */
+.star {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.star:hover,
+.star.active {
+    transform: scale(1.2) rotate(15deg);
+    color: #fbbf24;
+}
+
+/* Progress bar animation */
+.progress-bar {
+    transition: width 0.4s ease;
+}
+
+.progress-bar.animated {
+    animation: slideInLeft 0.8s ease;
+}
+
+/* Tooltip animation */
+.tooltip {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.3s ease;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    z-index: 1000;
+}
+
+*:hover > .tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Checkbox and radio animations */
+input[type="checkbox"],
+input[type="radio"] {
+    transition: all 0.3s ease;
+}
+
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+    animation: scaleUp 0.3s ease;
+}
+
+/* Tab switch animation */
+.tab-content {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Accordion animations */
+.accordion-item {
+    transition: all 0.3s ease;
+}
+
+.accordion-item.open {
+    background: var(--bg-secondary);
+}
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.accordion-item.open .accordion-content {
+    max-height: 500px;
+}
+
+/* Search input animation */
+.search-input {
+    position: relative;
+}
+
+.search-input:focus-within .search-icon {
+    animation: pulse 0.6s ease;
+}
+
+/* Filter button animations */
+.filter-btn {
+    transition: all 0.3s ease;
+}
+
+.filter-btn.active {
+    background: var(--primary);
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Gradient text animation */
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.gradient-text {
+    background: linear-gradient(45deg, var(--primary), #f97316, var(--primary));
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 3s ease infinite;
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Disable hover effects on touch devices */
+    .btn:hover {
+        transform: none;
+    }
+    
+    .card:hover {
+        transform: none;
+    }
+    
+    .nav-item::before {
+        display: none;
+    }
+    
+    /* Increase touch target sizes */
+    button,
+    input[type="button"],
+    input[type="submit"],
+    input[type="checkbox"],
+    input[type="radio"] {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Reduce hover animations on mobile */
+    a:not(.btn)::after {
+        display: none;
+    }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Dark mode micro-interactions */
+@media (prefers-color-scheme: dark) {
+    .btn:hover {
+        box-shadow: 0 12px 24px rgba(255, 255, 255, 0.1);
+    }
+    
+    .card:hover {
+        box-shadow: 0 12px 24px rgba(255, 255, 255, 0.08);
+    }
 }
 
 /* ============================================
