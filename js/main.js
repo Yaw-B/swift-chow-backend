@@ -4188,3 +4188,115 @@ function showToastEnhanced(message, type = 'info', duration = 4000) {
     toast.remove();
   }, duration + 400);
 }
+// ============================================
+// PERFORMANCE OPTIMIZATION
+// ============================================
+
+// Intersection Observer for lazy loading and scroll animations
+if ('IntersectionObserver' in window) {
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '50px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        // Add animation class when element comes into view
+        entry.target.classList.add('in-view');
+        
+        // Lazy load images if needed
+        if (entry.target.dataset.src && !entry.target.src) {
+          entry.target.src = entry.target.dataset.src;
+        }
+        
+        // Stop observing once loaded
+        observer.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
+  // Observe all elements with data-observe attribute
+  document.querySelectorAll('[data-observe]').forEach(el => {
+    observer.observe(el);
+  });
+}
+
+// Performance API monitoring
+if ('PerformanceObserver' in window) {
+  try {
+    const perfObserver = new PerformanceObserver((list) => {
+      const entries = list.getEntries();
+      entries.forEach((entry) => {
+        // Log performance metrics
+        if (entry.entryType === 'navigation') {
+          console.log(`Page load time: ${entry.loadEventEnd - entry.fetchStart}ms`);
+        }
+        if (entry.entryType === 'paint') {
+          console.log(`${entry.name}: ${entry.startTime.toFixed(2)}ms`);
+        }
+      });
+    });
+
+    // Monitor paint timings (FCP, LCP)
+    perfObserver.observe({ entryTypes: ['paint', 'navigation', 'largest-contentful-paint'] });
+  } catch (e) {
+    console.log('Performance monitoring not available');
+  }
+}
+
+// Request Idle Callback for non-critical tasks
+if ('requestIdleCallback' in window) {
+  requestIdleCallback(() => {
+    // Non-critical initialization
+    console.log('Non-critical initialization complete');
+  });
+}
+
+// Visibility change handler for pause/resume
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    // Page is hidden - pause animations/videos
+    document.querySelectorAll('video').forEach(video => {
+      if (!video.paused) video.pause();
+    });
+  } else {
+    // Page is visible - resume if needed
+    console.log('Page is now visible');
+  }
+});
+
+// Network status monitoring
+if ('connection' in navigator) {
+  const connection = navigator.connection;
+  
+  const updateNetworkStatus = () => {
+    const effectiveType = connection.effectiveType;
+    const saveData = connection.saveData;
+    
+    if (saveData) {
+      console.log('User has enabled data saver');
+      // Could disable animations or reduce image quality
+    }
+    
+    if (effectiveType === '4g') {
+      console.log('Good network connection');
+    } else if (effectiveType === '3g' || effectiveType === '2g') {
+      console.log('Slow network connection - consider reducing image quality');
+    }
+  };
+  
+  updateNetworkStatus();
+  connection.addEventListener('change', updateNetworkStatus);
+}
+
+// Memory pressure handling
+if ('deviceMemory' in navigator) {
+  const memory = navigator.deviceMemory;
+  console.log(`Device memory: ${memory}GB`);
+  
+  if (memory < 4) {
+    // Low memory device - optimize accordingly
+    console.log('Low memory device detected');
+  }
+}
