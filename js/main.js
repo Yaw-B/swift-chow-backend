@@ -2381,7 +2381,7 @@ async function loadOrders() {
               <p><strong>Total:</strong> GHS ${(order.total || 0).toFixed(2)}</p>
             </div>
             <div class="order-card-actions">
-              <a href="tracking.html" class="btn btn-sm btn-outline">
+              <a href="tracking.html?order=${order.orderId || order.id}" class="btn btn-sm btn-outline">
                 <i class="fas fa-map-marker-alt"></i> Track
               </a>
               <button class="btn btn-sm btn-outline">
