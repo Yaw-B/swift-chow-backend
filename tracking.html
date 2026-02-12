@@ -38,6 +38,12 @@
             
             if (orderId && window.loadOrder) {
                 console.log('📦 Auto-loading order from URL:', orderId);
+                // Log what's in storage for debugging
+                console.log('📝 Storage Debug:', {
+                    lastOrder: !!sessionStorage.getItem('lastOrder'),
+                    trackingKey: !!sessionStorage.getItem('trackingOrder_' + orderId),
+                    fafoOrders: localStorage.getItem('fafoOrders') ? JSON.parse(localStorage.getItem('fafoOrders')).length + ' orders' : 'none'
+                });
                 window.loadOrder(orderId);
                 return true;
             } else if (orderId && autoLoadAttempts < 20) {
