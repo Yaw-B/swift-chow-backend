@@ -558,7 +558,7 @@ const foodItems = [
     description: "Seasoned pork sausage wrapped in golden puff pastry, served warm.",
     price: 10,
     category: "pastries",
-    image: "https://www.pexels.com/photo/bread-rolls-with-tomatoes-25313527/",
+    image: "https://images.unsplash.com/photo-1743012492397-c6680eaa2c5d?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     rating: 4.5,
     reviews: 198,
     isPopular: false,
