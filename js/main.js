@@ -3581,11 +3581,11 @@ function createFloatingCart() {
       <i class="fas fa-shopping-bag"></i>
       <span class="floating-cart-count" style="display: none; position: absolute; top: -5px; right: -5px; background: var(--primary); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">0</span>
     </button>
-    <div class="floating-cart-tooltip" style="display: none; position: fixed; bottom: 80px; right: 20px; background: white; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 9998; min-width: 300px; max-width: 350px; max-height: 400px; overflow-y: auto;">
+    <div class="floating-cart-tooltip" style="display: none; position: fixed; bottom: 80px; right: 20px; background: white; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 9998; min-width: 300px; max-width: 350px;">
       <div style="padding: 12px; border-bottom: 1px solid var(--border-color);">
         <h4 style="margin: 0; font-size: 0.9rem; font-weight: 600;">Cart Preview</h4>
       </div>
-      <div class="floating-cart-items" style="padding: 8px 0;">
+      <div class="floating-cart-items" style="max-height: 200px; overflow-y: auto; padding: 8px 0;">
         <!-- Items will be rendered here -->
       </div>
       <div style="padding: 12px; border-top: 1px solid var(--border-color); background: var(--bg-secondary);">

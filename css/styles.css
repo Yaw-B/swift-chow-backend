@@ -2771,14 +2771,6 @@ input, textarea, select {
 
 /* Cart Summary */
 /* Fixed cart/checkout summary positioning */
-body[data-page="cart"] .cart-container {
-    padding-right: 380px;
-}
-
-body[data-page="checkout"] .checkout-container {
-    padding-right: 380px;
-}
-
 body[data-page="cart"] .cart-summary {
     position: fixed !important;
     bottom: 0;
