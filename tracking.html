@@ -29,6 +29,22 @@
             checkAuth();
             setTimeout(checkAuth, 500);
         })();
+        
+        // Auto-load order from URL parameter if present
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('order');
+            if (orderId) {
+                console.log('📦 Auto-loading order from URL:', orderId);
+                setTimeout(() => {
+                    const orderInput = document.querySelector('.track-order-form input[placeholder="e.g., SWIFT-ABC123"]');
+                    if (orderInput) {
+                        orderInput.value = orderId;
+                        document.querySelector('.track-order-form').dispatchEvent(new Event('submit'));
+                    }
+                }, 500);
+            }
+        });
     </script>
     <!-- Header -->
     <header class="header">
