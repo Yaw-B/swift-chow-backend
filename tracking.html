@@ -853,7 +853,7 @@
                     // Function to load and display a specific order
                     window.loadOrder = function(orderId) {
                         let order = null;
-                        console.log('loadOrder called with ID:', orderId);
+                        console.log('🔍 loadOrder called with ID:', orderId);
                         
                         try {
                             // Check sessionStorage first
@@ -861,10 +861,10 @@
                             console.log('sessionStorage lastOrder exists:', !!lastOrder);
                             if (lastOrder) {
                                 const parsed = JSON.parse(lastOrder);
-                                console.log('sessionStorage order ID:', parsed.id);
+                                console.log('sessionStorage order ID:', parsed.id, '| orderId param:', orderId, '| Match:', parsed.id === orderId);
                                 if (parsed.id === orderId) {
                                     order = parsed;
-                                    console.log('Order found in sessionStorage');
+                                    console.log('✅ Order found in sessionStorage');
                                 }
                             }
                             
@@ -875,8 +875,11 @@
                                 if (allOrders) {
                                     const ordersArray = JSON.parse(allOrders);
                                     console.log('Orders in localStorage:', ordersArray.length);
-                                    order = ordersArray.find(o => o.id === orderId);
-                                    if (order) console.log('Order found in localStorage');
+                                    console.log('Looking for order ID:', orderId);
+                                    ordersArray.forEach(o => console.log('- Order in storage:', o.id));
+                                    order = ordersArray.find(o => o.id === orderId || o.orderId === orderId);
+                                    if (order) console.log('✅ Order found in localStorage');
+                                    else console.log('❌ No matching order found in localStorage');
                                 }
                             }
                         } catch (e) {
