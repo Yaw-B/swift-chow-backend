@@ -576,14 +576,17 @@ async function processOrder(orderData) {
     if (response && response.success && response.order) {
       const order = response.order;
       
+      // GENERATE A RELIABLE ORDER ID IF NOT PROVIDED
+      const orderId = order.orderId || order._id || 'SWIFT-' + Date.now() + Math.random().toString(36).substr(2, 9).toUpperCase();
+      
       // Save to local storage as backup
       const localOrder = {
-        id: order.orderId || order._id,
-        orderId: order.orderId,
-        items: order.items,
-        subtotal: order.subtotal,
-        deliveryFee: order.deliveryFee,
-        total: order.total,
+        id: orderId,
+        orderId: orderId,
+        items: order.items || cart || [],
+        subtotal: order.subtotal || getCartSubtotal?.() || 0,
+        deliveryFee: order.deliveryFee || (getCartSubtotal?.() > 100 ? 0 : 15) || 0,
+        total: order.total || ((order.subtotal || getCartSubtotal?.() || 0) + (order.deliveryFee || (getCartSubtotal?.() > 100 ? 0 : 15) || 0)) || 0,
         customer: {
           firstName: orderData.firstName,
           lastName: orderData.lastName,
@@ -594,13 +597,13 @@ async function processOrder(orderData) {
           landmark: orderData.landmark,
           notes: orderData.notes
         },
-        paymentMethod: order.paymentMethod,
+        paymentMethod: order.paymentMethod || orderData.paymentMethod || 'cod',
         status: order.status || 'confirmed',
-        timestamp: order.createdAt,
-        createdAt: order.createdAt,
-        date: order.createdAt,
+        timestamp: order.createdAt || new Date().toISOString(),
+        createdAt: order.createdAt || new Date().toISOString(),
+        date: order.createdAt || new Date().toISOString(),
         city: orderData.city,
-        estimatedDelivery: order.estimatedDeliveryTime,
+        estimatedDelivery: order.estimatedDeliveryTime || new Date(Date.now() + 30 * 60000).toISOString(),
         orderTime: new Date().toISOString()
       };
       

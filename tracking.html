@@ -946,6 +946,30 @@
                             
                             // Animate progress based on real order time
                             animateOrderProgress(order, orderTime);
+                        } else {
+                            // Order not found - show error message
+                            console.error('❌ Order not found with ID:', orderId);
+                            const orderSummary = document.getElementById('orderSummary');
+                            if (orderSummary) {
+                                orderSummary.innerHTML = `
+                                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                        <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem; display: block;"></i>
+                                        <h4 style="color: var(--text-primary); margin-bottom: 0.5rem;">Order Not Found</h4>
+                                        <p>Could not find order: <strong>${orderId}</strong></p>
+                                        <p style="font-size: 0.85rem; margin-top: 1rem;">Please note the order ID and contact support if this persists.</p>
+                                        <button onclick="document.querySelector('.track-order-form input').focus()" style="
+                                            background: var(--primary);
+                                            color: white;
+                                            border: none;
+                                            padding: 0.75rem 1.5rem;
+                                            border-radius: 0.5rem;
+                                            cursor: pointer;
+                                            margin-top: 1rem;
+                                            font-weight: 600;
+                                        ">Try Another Order ID</button>
+                                    </div>
+                                `;
+                            }
                         }
                     };
                     
