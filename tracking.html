@@ -40,9 +40,27 @@
                     const orderInput = document.querySelector('.track-order-form input[placeholder="e.g., SWIFT-ABC123"]');
                     if (orderInput) {
                         orderInput.value = orderId;
-                        document.querySelector('.track-order-form').dispatchEvent(new Event('submit'));
+                        // Dispatch submit event
+                        const form = document.querySelector('.track-order-form');
+                        if (form) {
+                            const event = new Event('submit', { bubbles: true, cancelable: true });
+                            form.dispatchEvent(event);
+                        }
                     }
                 }, 500);
+            }
+            
+            // Also handle form submission manually
+            const form = document.querySelector('.track-order-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const input = this.querySelector('input[type="text"]');
+                    if (input && input.value) {
+                        console.log('🔍 Searching for order:', input.value);
+                        window.loadOrder(input.value);
+                    }
+                });
             }
         });
     </script>

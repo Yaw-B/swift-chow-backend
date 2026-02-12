@@ -2770,6 +2770,28 @@ input, textarea, select {
 }
 
 /* Cart Summary */
+body[data-page="cart"] .cart-container,
+body[data-page="checkout"] .checkout-container {
+    margin-bottom: 400px;
+}
+
+body[data-page="cart"] .cart-summary,
+body[data-page="checkout"] .order-summary {
+    position: fixed !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    width: 350px;
+    max-width: calc(100% - 2rem);
+    margin: 0 !important;
+    background: var(--card-bg);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    border-bottom: none;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+}
+
 .cart-summary {
     background: var(--card-bg);
     border-radius: var(--radius-xl);
