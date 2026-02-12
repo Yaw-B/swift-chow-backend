@@ -31,25 +31,27 @@
         })();
         
         // Auto-load order from URL parameter if present
-        document.addEventListener('DOMContentLoaded', function() {
+        let autoLoadAttempts = 0;
+        function checkAndAutoLoadOrder() {
             const urlParams = new URLSearchParams(window.location.search);
             const orderId = urlParams.get('order');
-            if (orderId) {
-                console.log('📦 Auto-loading order from URL:', orderId);
-                setTimeout(() => {
-                    const orderInput = document.querySelector('.track-order-form input[placeholder="e.g., SWIFT-ABC123"]');
-                    if (orderInput) {
-                        orderInput.value = orderId;
-                        // Dispatch submit event
-                        const form = document.querySelector('.track-order-form');
-                        if (form) {
-                            const event = new Event('submit', { bubbles: true, cancelable: true });
-                            form.dispatchEvent(event);
-                        }
-                    }
-                }, 500);
-            }
             
+            if (orderId && window.loadOrder) {
+                console.log('📦 Auto-loading order from URL:', orderId);
+                window.loadOrder(orderId);
+                return true;
+            } else if (orderId && autoLoadAttempts < 20) {
+                autoLoadAttempts++;
+                setTimeout(checkAndAutoLoadOrder, 200);
+                return false;
+            }
+            return false;
+        }
+        
+        // Start checking for auto-load
+        setTimeout(checkAndAutoLoadOrder, 300);
+        
+        document.addEventListener('DOMContentLoaded', function() {
             // Also handle form submission manually
             const form = document.querySelector('.track-order-form');
             if (form) {
@@ -58,7 +60,9 @@
                     const input = this.querySelector('input[type="text"]');
                     if (input && input.value) {
                         console.log('🔍 Searching for order:', input.value);
-                        window.loadOrder(input.value);
+                        if (window.loadOrder) {
+                            window.loadOrder(input.value);
+                        }
                     }
                 });
             }
