@@ -610,9 +610,15 @@ async function processOrder(orderData) {
       localStorage.setItem('lastOrder', JSON.stringify(localOrder));
       sessionStorage.setItem('lastOrder', JSON.stringify(localOrder));
       
+      // CRITICAL: Ensure sessionStorage has the order BEFORE redirect happens
+      // This is what the tracking page will look for first
+      const trackingOrderId = localOrder.id || localOrder.orderId || order.orderId || order._id;
+      sessionStorage.setItem('trackingOrder_' + trackingOrderId, JSON.stringify(localOrder));
+      
       console.log('✅ Order saved to database and local storage:', {
         id: localOrder.id,
         orderId: localOrder.orderId,
+        trackingOrderId: trackingOrderId,
         timestamp: localOrder.timestamp,
         city: localOrder.city,
         totalItems: localOrder.items.length,

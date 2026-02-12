@@ -856,19 +856,29 @@
                         console.log('🔍 loadOrder called with ID:', orderId);
                         
                         try {
-                            // Check sessionStorage first
-                            const lastOrder = sessionStorage.getItem('lastOrder');
-                            console.log('sessionStorage lastOrder exists:', !!lastOrder);
-                            if (lastOrder) {
-                                const parsed = JSON.parse(lastOrder);
-                                console.log('sessionStorage order ID:', parsed.id, '| orderId param:', orderId, '| Match:', parsed.id === orderId);
-                                if (parsed.id === orderId) {
-                                    order = parsed;
-                                    console.log('✅ Order found in sessionStorage');
+                            // FIRST: Check for specific tracking order key (most direct match)
+                            const trackingKey = 'trackingOrder_' + orderId;
+                            const trackingOrderData = sessionStorage.getItem(trackingKey);
+                            if (trackingOrderData) {
+                                order = JSON.parse(trackingOrderData);
+                                console.log('✅ Order found in sessionStorage with tracking key:', trackingKey);
+                            }
+                            
+                            // SECOND: Check lastOrder in sessionStorage
+                            if (!order) {
+                                const lastOrder = sessionStorage.getItem('lastOrder');
+                                console.log('sessionStorage lastOrder exists:', !!lastOrder);
+                                if (lastOrder) {
+                                    const parsed = JSON.parse(lastOrder);
+                                    console.log('sessionStorage order ID:', parsed.id, '| orderId param:', orderId, '| Match:', parsed.id === orderId);
+                                    if (parsed.id === orderId || parsed.orderId === orderId || parsed._id === orderId) {
+                                        order = parsed;
+                                        console.log('✅ Order found in sessionStorage lastOrder');
+                                    }
                                 }
                             }
                             
-                            // Check localStorage
+                            // THIRD: Check localStorage
                             if (!order) {
                                 const allOrders = localStorage.getItem('fafoOrders');
                                 console.log('localStorage fafoOrders exists:', !!allOrders);
@@ -876,8 +886,8 @@
                                     const ordersArray = JSON.parse(allOrders);
                                     console.log('Orders in localStorage:', ordersArray.length);
                                     console.log('Looking for order ID:', orderId);
-                                    ordersArray.forEach(o => console.log('- Order in storage:', o.id));
-                                    order = ordersArray.find(o => o.id === orderId || o.orderId === orderId);
+                                    ordersArray.forEach(o => console.log('- Order in storage:', o.id, '|', o.orderId, '|', o._id));
+                                    order = ordersArray.find(o => o.id === orderId || o.orderId === orderId || o._id === orderId);
                                     if (order) console.log('✅ Order found in localStorage');
                                     else console.log('❌ No matching order found in localStorage');
                                 }
